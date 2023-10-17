@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/chat_background"
+    android:layout_height="match_parent">
+    <!-- Contact Info -->
+    <RelativeLayout
+        android:id="@+id/contactInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/Apple_green">
+
+        <!-- Contact Profile Image -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/contactProfileImageView"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/circle_profile_picture"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            app:civ_border_color="@color/green"
+            app:civ_border_width="2dp" />
+
+        <!-- Contact Status -->
+
+
+        <!-- Contact Name -->
+        <TextView
+            android:id="@+id/contactNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact Name"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/contactProfileImageView"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+              />
+        <TextView
+            android:id="@+id/contactStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Online"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:layout_toEndOf="@id/contactProfileImageView"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="6dp"
+            android:layout_below="@+id/contactNameTextView"/>
+        <ImageView
+            android:id="@+id/callBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/call_24"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/videoCallBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/video_call_24"
+            android:layout_marginEnd="15dp"
+            android:layout_toStartOf="@+id/callBtn"
+            android:layout_centerVertical="true"/>
+
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_marginTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/contactInfoLayout"
+        android:layout_above="@+id/sendMessageLayout"/>
+
+
+<RelativeLayout
+    android:id="@+id/sendMessageLayout"
+    android:layout_alignParentBottom="true"
+    android:layout_width="match_parent"
+    android:background="@color/Apple_green"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/messageEd"
+        android:layout_width="match_parent"
+        android:hint="Write message here"
+         android:layout_alignParentStart="true"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"/>
+
+    <ImageView
+        android:id="@+id/sendMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/send_image"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:padding="15dp"/>
+</RelativeLayout>
+
+
+
+</RelativeLayout>

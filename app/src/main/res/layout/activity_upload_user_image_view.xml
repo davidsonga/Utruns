@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_image"
+    tools:context=".Activity.UploadUserImageView">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="50dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logo_icon"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Profile Photo"
+        style="@style/titles"
+        android:textAlignment="center"/>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="As part of our vibrant company community, we want to put a face to the name lets start by setting yp you profile."
+        style="@style/body_content"
+        android:layout_marginHorizontal="45dp"
+        android:layout_marginTop="10dp"
+        android:textAlignment="center"/>
+
+    <ImageView
+        android:id="@+id/img_userProfileImage"
+        android:layout_width="match_parent"
+        android:layout_height="212dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_place_holder" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OR"
+        style="@style/body_content"
+        android:layout_marginHorizontal="45dp"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/btn_TakePhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open Camera and take photo"
+        app:icon="@drawable/baseline_photo_camera_24"
+        android:background="@drawable/light_green_btn"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="45dp"/>
+
+    <Button
+        android:id="@+id/btn_finishOnboarding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish Onboarding"
+        android:background="@drawable/green_btn"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="45dp"/>
+
+</LinearLayout>

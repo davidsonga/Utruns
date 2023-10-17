@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Utrun</string>
+
+    <string name="titles">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">38sp</item>
+        <item name="android:textStyle">bold</item>
+    </string>
+
+    <string name="body_content">
+        <item name="android:textColor">@color/Davy_grey</item>
+        <item name="android:textSize">22sp</item>
+    </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

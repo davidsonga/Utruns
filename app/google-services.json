@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "41069884631",
+    "firebase_url": "https://utrun-8aee7-default-rtdb.firebaseio.com",
+    "project_id": "utrun-8aee7",
+    "storage_bucket": "utrun-8aee7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:41069884631:android:1f442bd7f07bc2e82eac92",
+        "android_client_info": {
+          "package_name": "com.example.utrun"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrOhH0nrU4UsI_zwCZv0_0h7fJTSPA004"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
