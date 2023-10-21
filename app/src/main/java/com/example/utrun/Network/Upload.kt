@@ -24,7 +24,7 @@ class Upload {
     private var objIntent:intents =intents()
     var objProgress:progressDialog= progressDialog()
     private lateinit var appLifecycleCallback: AppLifecycleCallback
-    fun uploadProfilePicture(activity: Activity, selectedImageUri: Uri) {
+    fun uploadProfilePicture(activity: Activity, selectedImageUri: Uri, ) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         var activity2: HomePage = HomePage()
         if (currentUser != null) {

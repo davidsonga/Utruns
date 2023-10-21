@@ -3,6 +3,7 @@ package com.example.utrun.Fragment
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -41,59 +42,70 @@ class ChatFragment : Fragment() {
         recyclerView.adapter = userAdapter
 
         databaseReference = FirebaseDatabase.getInstance().reference.child("login").child("email")
+        val handler = Handler()
+        val delay = 1000 // 1 second
 
-        // Fetch user data and last messages
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userList = mutableListOf<User>()
+        val fetchDataRunnable = object : Runnable {
+            override fun run() {
+                databaseReference.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val userList = mutableListOf<User>()
 
-                for (childSnapshot in dataSnapshot.children) {
-                    val base64Image = childSnapshot.child("Picture").value as String?
-                    val name = childSnapshot.child("name").getValue(String::class.java)
-                    val surname = childSnapshot.child("surname").getValue(String::class.java)
-                    val fullName = "$name $surname"
-                    val uid = childSnapshot.key.toString()
-                    // Reference to the chat node for this user
-                    val chatReference = FirebaseDatabase.getInstance().getReference("chats")
-                        .child(FirebaseAuth.getInstance().currentUser?.uid + uid)
+                        for (childSnapshot in dataSnapshot.children) {
+                            val base64Image = childSnapshot.child("Picture").value as String?
+                            val name = childSnapshot.child("name").getValue(String::class.java)
+                            val surname = childSnapshot.child("surname").getValue(String::class.java)
+                            val fullName = "$name $surname"
+                            val uid = childSnapshot.key.toString()
+                            // Reference to the chat node for this user
+                            val chatReference = FirebaseDatabase.getInstance().getReference("chats")
+                                .child(FirebaseAuth.getInstance().currentUser?.uid + uid)
 
-                    // Query to get the last message, sorted by timestamp
-                    val query = chatReference.orderByChild("timestamp").limitToLast(1)
+                            // Query to get the last message, sorted by timestamp
+                            val query = chatReference.orderByChild("timestamp").limitToLast(1)
 
-                    query.addListenerForSingleValueEvent(object : ValueEventListener {
-                        @SuppressLint("NotifyDataSetChanged")
-                        override fun onDataChange(messageSnapshot: DataSnapshot) {
-                            if (messageSnapshot.exists()) {
-                                for (messageData in messageSnapshot.children) {
-                                    val lastMessage = messageData.child("message").getValue(String::class.java)
-                                    lastText[uid] = lastMessage.toString()
+                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                                @SuppressLint("NotifyDataSetChanged")
+                                override fun onDataChange(messageSnapshot: DataSnapshot) {
+                                    if (messageSnapshot.exists()) {
+                                        for (messageData in messageSnapshot.children) {
+                                            val lastMessage = messageData.child("message").getValue(String::class.java)
+                                            lastText[uid] = lastMessage.toString()
+                                        }
+                                    } else {
+                                        // Handle the case where there are no messages
+                                        lastText[uid] = "No messages"
+                                    }
+
+                                    // Notify the adapter of the data change
+                                    userAdapter.notifyDataSetChanged()
                                 }
-                            } else {
-                                // Handle the case where there are no messages
-                                lastText[uid] = "No messages"
+
+                                override fun onCancelled(databaseError: DatabaseError) {
+                                    // Handle the error here if needed
+                                }
+                            })
+
+                            if (!base64Image.isNullOrEmpty()) {
+                                userList.add(User(fullName, base64Image, uid))
                             }
-
-                            // Notify the adapter of the data change
-                            userAdapter.notifyDataSetChanged()
                         }
 
-                        override fun onCancelled(databaseError: DatabaseError) {
-                            // Handle the error here if needed
-                        }
-                    })
-
-                    if (!base64Image.isNullOrEmpty()) {
-                        userList.add(User(fullName, base64Image, uid))
+                        userAdapter.setData(userList)
                     }
-                }
 
-                userAdapter.setData(userList)
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Handle error here if needed
+                    }
+                })
+                handler.postDelayed(this, delay.toLong())
             }
+        }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Handle error here if needed
-            }
-        })
+// Call the runnable to start fetching data every 1 second
+        handler.postDelayed(fetchDataRunnable, delay.toLong())
+        // Fetch user data and last messages
+
 
         return view
     }

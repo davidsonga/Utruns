@@ -23,7 +23,7 @@ class LoginProgress {
     private var objProgress:progressDialog= progressDialog()
     private lateinit var appLifecycleCallback: AppLifecycleCallback
 
-   fun isLoginUser(acitivity: Activity, email: String, password: String, role: String):Boolean{
+   fun isLoginUser(acitivity: Activity, email: String, password: String, role: String,refreshedToken:String):Boolean{
 
         val auth = FirebaseAuth.getInstance()
        objProgress.isProgressDialogEnable(acitivity,"Please wait...")
@@ -33,7 +33,7 @@ class LoginProgress {
                     val user = auth.currentUser
 
                     // Check the user's role after successful login
-                    isCheckUserRole(acitivity,user?.uid, role)
+                    isCheckUserRole(acitivity,user?.uid, role,refreshedToken)
 
                 } else {
                     objProgress.isProgressDialogDisable()
@@ -45,7 +45,9 @@ class LoginProgress {
        return isTrue
     }
 
-    fun isCheckUserRole(activity: Activity, userId: String?, expectedRole: String) {
+
+
+    fun isCheckUserRole(activity: Activity, userId: String?, expectedRole: String, userToken: String) {
         if (userId != null) {
             val databaseReference = FirebaseDatabase.getInstance().reference
             val usersReference = databaseReference.child("login").child("email").child(userId)
@@ -54,35 +56,36 @@ class LoginProgress {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val userRole = dataSnapshot.child("Role").value.toString()
                     val picture = dataSnapshot.child("Picture").value.toString()
-                     var objintent:intents=intents()
-                     val activity2: UploadUserImageView = UploadUserImageView()
-                     val activity3: HomePage = HomePage()
+                    var objintent:intents=intents()
+                    val activity2: UploadUserImageView = UploadUserImageView()
+                    val activity3: HomePage = HomePage()
+
 
                     if (userRole == expectedRole) {
                         isTrue = true
                         objProgress.isProgressDialogDisable()
-                       //i used picture.length <5 because if picture is empty and you use isNull it returns a wrong answer
-                        if (picture.length <5) {
-
+                        // I used picture.length < 5 because if picture is empty and you use isNull it returns a wrong answer
+                        if (picture.length < 5) {
                             appLifecycleCallback = (activity.application as MyApp).appLifecycleCallback
                             // Picture field is empty
                             objProgress.isProgressDialogDisable()
-                            isProfilePicture=false
-                            Toast.makeText(activity, "Login success, please provide profile picture", Toast.LENGTH_LONG).show()
-                            objintent.intent(activity,activity2)
-
+                            isProfilePicture = false
+                            Toast.makeText(activity, "Login success, please provide a profile picture", Toast.LENGTH_LONG).show()
+                            objintent.intent(activity, activity2)
                         } else {
                             // Picture field is not empty
                             objProgress.isProgressDialogDisable()
-                            isProfilePicture=true
+                            isProfilePicture = true
                             Toast.makeText(activity, "Login success", Toast.LENGTH_LONG).show()
-                            objintent.intent(activity,activity3)
+                            objintent.intent(activity, activity3)
                         }
+
+                        // Add the FCM token to the user's data
+                        usersReference.child("FCMToken").setValue(userToken)
                     } else {
                         isTrue = false
                         objProgress.isProgressDialogDisable()
                         Toast.makeText(activity, "Role does not match, user is not authorized", Toast.LENGTH_LONG).show()
-
                     }
                 }
 
@@ -93,7 +96,6 @@ class LoginProgress {
                 }
             })
         }
-
     }
 
 }

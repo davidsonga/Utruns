@@ -9,12 +9,14 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.utrun.Network.Upload
 import com.example.utrun.R
+import com.google.firebase.messaging.FirebaseMessaging
 
 class UploadUserImageView : AppCompatActivity() {
     private val PICK_IMAGE_REQUEST = 1
     private lateinit var imgUserProfileImage: ImageView
     private lateinit var selectedImageUri: Uri
     private var objUpload:Upload= Upload()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +26,8 @@ class UploadUserImageView : AppCompatActivity() {
         imgUserProfileImage = findViewById(R.id.img_userProfileImage)
         val btnTakePhoto: Button = findViewById(R.id.btn_TakePhoto)
         val btnFinishOnboarding: Button = findViewById(R.id.btn_finishOnboarding)
+
+
 
         btnTakePhoto.setOnClickListener {
             openImagePicker()

@@ -11,11 +11,10 @@ import com.example.utrun.R
 import com.example.utrun.models.MessageModel
 import com.google.firebase.auth.FirebaseAuth
 
-class MessageAdapter(context: Context) : RecyclerView.Adapter<MessageAdapter.MyViewHolder>() {
+class MessageAdapter(context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private lateinit var context: Context
     private var messageModelList: List<MessageModel> = ArrayList()
-
 
     init {
         this.context = context
@@ -33,41 +32,45 @@ class MessageAdapter(context: Context) : RecyclerView.Adapter<MessageAdapter.MyV
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.message_row, parent, false)
-        return MyViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val message: MessageModel = messageModelList[position]
-        holder.msg.text = message.message.trim();
-
-        if (message.senderId == FirebaseAuth.getInstance().uid) {
+    override fun getItemViewType(position: Int): Int {
+        val message = messageModelList[position]
+        return if (message.senderId == FirebaseAuth.getInstance().uid) {
             // Sender's message
-            holder.msg.text = message.message.trim();
-            holder.msg2.visibility = View.GONE
-
-
+            0
         } else {
             // Receiver's message
-            holder.msg.visibility = View.GONE
-            holder.msg2.text = message.message.trim();
-
-
-
+            1
         }
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == 0) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.sender_message_row, parent, false)
+            SenderViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.receiver_message_row, parent, false)
+            ReceiverViewHolder(view)
+        }
+    }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val message: MessageModel = messageModelList[position]
+        if (holder is SenderViewHolder) {
+            holder.msg.text = message.message.trim()
+        } else if (holder is ReceiverViewHolder) {
+            holder.msg2.text = message.message.trim()
+        }
+    }
 
     override fun getItemCount(): Int {
         return messageModelList.size
     }
 
-    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SenderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var msg: TextView = itemView.findViewById(R.id.message)
-        var msg2: TextView = itemView.findViewById(R.id.message2)
+    }
 
-        var main: LinearLayout = itemView.findViewById(R.id.mainMessageLayout)
+    inner class ReceiverViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var msg2: TextView = itemView.findViewById(R.id.message2)
     }
 }

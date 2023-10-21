@@ -1,10 +1,10 @@
 package com.example.utrun
 
-import android.content.Context
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -12,16 +12,16 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.utrun.Network.LoginProgress
 import com.example.utrun.Service.AppLifecycleCallback
-import com.example.utrun.Service.AppStateService
 import com.example.utrun.Service.MyApp
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.messaging.FirebaseMessaging
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity   :AppCompatActivity()  {
 private var selectedUserRole: String = ""
     private lateinit var emailEt:EditText
     private lateinit var passwordEt:EditText
@@ -30,12 +30,26 @@ private var selectedUserRole: String = ""
     private var objLogin:LoginProgress = LoginProgress()
     private lateinit var auth: FirebaseAuth
     private lateinit var appLifecycleCallback: AppLifecycleCallback
+    private var refreshedToken:String =""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         FirebaseApp.initializeApp(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                arrayOf<String>(
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.READ_PHONE_STATE
+                ), 100
+            )
+        }
+
+
+
 
         //declaring obj variable
         emailEt = findViewById(R.id.emailEt)
@@ -43,6 +57,14 @@ private var selectedUserRole: String = ""
         btn_logIn = findViewById(R.id.btn_logIn)
         //calling the life cycle of the app
 
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    refreshedToken = task.result
+
+                }
+            }
 
         //declaring and adding values to the spinner
         val userRoles = arrayOf("Select role", "Admin", "User")
@@ -99,7 +121,7 @@ private var selectedUserRole: String = ""
             if (isTrue) {
 
                  //sending users details to the database to checkup
-                objLogin.isLoginUser(this,emailEt.text.toString(),passwordEt.text.toString(),selectedUserRole)
+                objLogin.isLoginUser(this,emailEt.text.toString(),passwordEt.text.toString(),selectedUserRole,refreshedToken)
 
 
 
@@ -113,30 +135,28 @@ private var selectedUserRole: String = ""
 
     //do not remove this
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onStart() {
         super.onStart()
         val mAuth = FirebaseAuth.getInstance().currentUser
-        if(mAuth != null){
-            appLifecycleCallback = (application as MyApp).appLifecycleCallback
-         var  intent:Intent= Intent(this, HomePage::class.java)
-            startActivity(intent)
+
+
+            if (mAuth != null) {
+                appLifecycleCallback = (application as MyApp).appLifecycleCallback
+
+                var  intent:Intent= Intent(this, HomePage::class.java)
+                startActivity(intent)
+
+
+
+
+
+
+
         }
     }
 
-  //do not remove/modify this please
-    override fun onDestroy() {
-        super.onDestroy()
 
-         if (!appLifecycleCallback.isAppInForeground()) {
-        // Stop the AppStateService explicitly when the app is closed
-            val serviceIntent = Intent(this, AppStateService::class.java)
-         stopService(serviceIntent)
-         } //else {
-        // App is in the foreground, show a toast
-
-
-
-    }
 
 }
 

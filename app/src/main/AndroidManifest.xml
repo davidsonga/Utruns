@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
     <application
         android:allowBackup="true"
@@ -20,12 +24,8 @@
             android:name="com.example.utrun.Activity.ChatAct"
             android:label="ChatAct">
         </activity>
-        <activity
-            android:name="com.example.utrun.chat.MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.Chat"
-            android:exported="false" />
+
+
         <activity
             android:name=".HomePage"
             android:exported="false" />
@@ -35,16 +35,11 @@
         <activity
             android:name=".Activity.UploadUserImageView"
             android:exported="false" />
+
         <activity
             android:name=".Activity.WelcomePage"
             android:exported="false" />
-        <activity android:name="com.example.utrun.chat.FindFriendsActivity"/>
 
-        <activity android:name="com.example.utrun.chat.ProfileActivity"/>
-
-        <activity
-            android:name="com.example.utrun.chat.SettingsActivity"
-            android:label="Settings Activity"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -59,7 +54,16 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.example.utrun.Service.AppStateService" />
+
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
     </application>
 
 </manifest>
