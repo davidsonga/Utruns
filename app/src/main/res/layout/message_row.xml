@@ -9,7 +9,7 @@
 
 
     <TextView
-        android:id="@+id/message2"
+        android:id="@+id/message"
         android:padding="15dp"
         android:text="Message"
         android:background="@drawable/round_chat2"
@@ -22,7 +22,7 @@
 
 
     <TextView
-        android:id="@+id/message"
+        android:id="@+id/message2"
         android:padding="15dp"
         android:text="Message"
         android:background="@drawable/round_chat"
@@ -31,5 +31,11 @@
         android:layout_width="wrap_content"
         android:layout_gravity="end"
         android:layout_height="wrap_content"/>
+    <ImageView
+        android:id="@+id/ivMessageIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_gravity="end" />
 
 </LinearLayout>

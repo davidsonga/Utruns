@@ -34,7 +34,15 @@ android:padding="16dp">
     android:layout_centerVertical="true"
     android:layout_toEndOf="@+id/user_image"
     android:layout_marginStart="16dp" />
-
+    <TextView
+        android:id="@+id/messageCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_alignParentEnd="true"
+        />
 <TextView
     android:id="@+id/lastMessage"
     android:layout_width="wrap_content"

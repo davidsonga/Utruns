@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.utrun.Network.LoginProgress
 import com.example.utrun.Service.AppLifecycleCallback
+import com.example.utrun.Service.AppStateService
 import com.example.utrun.Service.MyApp
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -37,16 +38,7 @@ private var selectedUserRole: String = ""
         setContentView(R.layout.activity_main)
 
         FirebaseApp.initializeApp(this)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                arrayOf<String>(
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.ACCESS_NETWORK_STATE,
-                    Manifest.permission.READ_PHONE_STATE
-                ), 100
-            )
-        }
+
 
 
 
@@ -135,26 +127,31 @@ private var selectedUserRole: String = ""
 
     //do not remove this
 
-    @SuppressLint("SuspiciousIndentation")
     override fun onStart() {
         super.onStart()
         val mAuth = FirebaseAuth.getInstance().currentUser
-
-
-            if (mAuth != null) {
-                appLifecycleCallback = (application as MyApp).appLifecycleCallback
-
-                var  intent:Intent= Intent(this, HomePage::class.java)
-                startActivity(intent)
-
-
-
-
-
-
-
+        if(mAuth != null){
+            appLifecycleCallback = (application as MyApp).appLifecycleCallback
+            var  intent:Intent= Intent(this, HomePage::class.java)
+            startActivity(intent)
         }
     }
+
+    //do not remove/modify this please
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (!appLifecycleCallback.isAppInForeground()) {
+            // Stop the AppStateService explicitly when the app is closed
+            val serviceIntent = Intent(this, AppStateService::class.java)
+            stopService(serviceIntent)
+        } //else {
+        // App is in the foreground, show a toast
+
+
+
+    }
+
 
 
 

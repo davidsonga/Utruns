@@ -35,12 +35,12 @@ class UserAdapter(
 
         // Set the full name in the TextView
         holder.userEmail.text = user.fullName
-
+        holder.messageCount.text= user.index.toString()
         // Get the last message from the lastText map using the user's UID
         val lastMessage = lastText[user.uid]
 
         // Set the last message in the TextView
-        holder.lastMessage.text = lastMessage
+        holder.lastMessage.text = lastMessage?.take(30)
 
         holder.itemView.setOnClickListener {
             itemClickListener(user)
@@ -54,9 +54,13 @@ class UserAdapter(
         notifyDataSetChanged()
     }
 
+
+
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userImage: ImageView = itemView.findViewById(R.id.user_image)
         val userEmail: TextView = itemView.findViewById(R.id.user_email)
         val lastMessage: TextView = itemView.findViewById(R.id.lastMessage)
+        val messageCount:TextView = itemView.findViewById(R.id.messageCount)
     }
 }

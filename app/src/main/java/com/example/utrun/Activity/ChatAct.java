@@ -3,7 +3,6 @@ package com.example.utrun.Activity;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -34,11 +32,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.RemoteMessage;
 
 
-import android.Manifest;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 public class ChatAct extends AppCompatActivity {
@@ -56,16 +58,26 @@ public class ChatAct extends AppCompatActivity {
     private TextView status;
 
     private ImageView profilePicture;
+    private ImageView sendPicture;
     private boolean isTyping = false;
-    private ImageView videoCallBtns;
+
     private Handler handler;
 
 
-
     private List<MessageModel> messageList = new ArrayList<>();
+    private List<String> list = new ArrayList<>();
+    private List<String> list2 = new ArrayList<>();
+    private List<String> listID = new ArrayList<>();
+    private List<Boolean> boolList = new ArrayList<>();
 
 
-
+    private boolean isOnline = false;
+    private boolean isReceiverReadMessage = false;
+    private String currentUserUID;
+    private   Timer timer ;
+    private   Timer timer2 ;
+    private   int timerValue = 1000;
+    private String userRole ="";
 
 
     @SuppressLint("WrongViewCast")
@@ -77,7 +89,7 @@ public class ChatAct extends AppCompatActivity {
         profileName = findViewById(R.id.contactNameTextView);
         profilePicture = findViewById(R.id.contactProfileImageView);
         status = findViewById(R.id.contactStatusTextView);
-        videoCallBtns = findViewById(R.id.videoCallBtn);
+
 
         //use putextra
         recieverId = getIntent().getStringExtra("id");
@@ -87,6 +99,66 @@ public class ChatAct extends AppCompatActivity {
         handler = new Handler(Looper.getMainLooper());
         handler.post(runnable);
         profileName.setText(fullName);
+
+
+        sendPicture = findViewById(R.id.sendPicture);
+
+        timer = new Timer();
+        TimerTask periodicCheck = new TimerTask() {
+            @Override
+            public void run() {
+
+
+                // Check and publish items from the list
+                for (int i = 0; i < list.size(); i++) {
+                    publish(list.get(i));
+                }
+                list.clear();  // Clear the list after processing
+
+            }
+        };
+
+// Schedule the periodicCheck task to run every 1 second (1000 milliseconds)
+        timer.schedule(periodicCheck, 0, timerValue);
+
+
+
+
+        timer2 = new Timer();
+        TimerTask periodicChecks = new TimerTask() {
+            @Override
+            public void run() {
+
+            if(status.getText().toString().equalsIgnoreCase("Online") || status.getText().toString().equalsIgnoreCase("typing....")){
+                for(int i =0; i<list2.size(); i++){
+                    messageArivedOrNot(list2.get(i), i);
+                }
+                list2.clear();
+                boolList.clear();
+                listID.clear();
+            }
+
+            }
+        };
+
+// Schedule the periodicCheck task to run every 1 second (1000 milliseconds)
+        timer2.schedule(periodicChecks, 0, timerValue);
+        sendPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                for(int i =0;i<list.size();i++){
+                    publish(list.get(i));
+                }
+                list.clear();
+            }
+        });
+
+
+
+
+
         //converting the string into a bitmap to allow our picture to show in imageview
         Bitmap bitmap = decodeBase64(pictureBase64);
         if (bitmap != null) {
@@ -96,6 +168,7 @@ public class ChatAct extends AppCompatActivity {
             // Handle the case where the Base64 string couldn't be decoded
             Toast.makeText(this, "Error decoding the image", Toast.LENGTH_LONG).show();
         }
+        currentUserUID = FirebaseAuth.getInstance().getUid();
         //do not modify
         senderRoom = FirebaseAuth.getInstance().getUid() + recieverId;
         recieverRoom = recieverId + FirebaseAuth.getInstance().getUid();
@@ -118,14 +191,13 @@ public class ChatAct extends AppCompatActivity {
         // Schedule the task to check for changes every second
 
 
+        //message event read is true
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
 
-        videoCallBtns.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(true);
 
 
         binding.messageEd.addTextChangedListener(new TextWatcher() {
@@ -161,44 +233,61 @@ public class ChatAct extends AppCompatActivity {
 
 
 
-
-
-
         databaseReferenceSender.addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @SuppressLint("NotifyDataSetChanged")
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                messageList.clear();
-                messageAdapter.clear();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        //clean the list to avoid duplication
+                        messageList.clear();
+                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                            MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
 
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
-                    messageList.add(messageModel);
+                            boolean isTrue =false;
+                                  isTrue=  isReceiverReadMessage;
+                            // String receiverReadMessage =  dataSnapshot.child(messageModel.getMsgId()).child("receiverReadMessage").getValue().toString() ;
+
+                         if(messageModel != null){
+
+                          if(!messageModel.getCurrentReadMessage()){
+                              boolList.add(messageModel.getCurrentReadMessage());
+                              list2.add(messageModel.getMsgId());
+                              listID.add(messageModel.getSenderId());
+                          }
+
+                             list.add(messageModel.getMsgId());
+                             messageList.add(messageModel);
+
+                         }
+
+
+
+
+
+                    }
+
+
+
+                    // Sort the messages by timestamp
+                    Collections.sort(messageList, (o1, o2) -> Long.compare(o1.getTimestamp(), o2.getTimestamp()));
+
+                    messageAdapter.clear(); // Clear the adapter before adding new messages
+
+                    for (MessageModel messageModel : messageList) {
+                        messageAdapter.add(messageModel);
+                    }
+
+                    // Notify the RecyclerView of data changes
+                    messageAdapter.notifyDataSetChanged();
+
+                    // Scroll to the bottom
+                    binding.recycler.scrollToPosition(messageAdapter.getItemCount() - 1);
                 }
-
-
-                messageList.sort(Comparator.comparingLong(MessageModel::getTimestamp));
-
-                messageAdapter.clear(); // Clear the adapter before adding new messages
-
-                for (MessageModel message : messageList) {
-                    messageAdapter.add(message);
-                }
-
-                // Notify the RecyclerView of data changes
-                messageAdapter.notifyDataSetChanged();
-
-                // Scroll to the bottom
-                binding.recycler.scrollToPosition(messageAdapter.getItemCount() - 1);
-            }
 
             @Override
-            public void onCancelled(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError error) {
                 // Handle database error
             }
         });
-
 
 
 
@@ -219,55 +308,145 @@ public class ChatAct extends AppCompatActivity {
 
 
 
+
     private void senMessage(String message) {
         String messageId = UUID.randomUUID().toString();
-        long timestamp = System.currentTimeMillis(); // Get current timestamp in milliseconds
 
-        MessageModel messageModel = new MessageModel(messageId, FirebaseAuth.getInstance().getUid(), message, timestamp );
-        messageAdapter.add(messageModel);
+// Set the time zone to South Africa
+        TimeZone tz = TimeZone.getTimeZone("Africa/Johannesburg");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(tz);
 
-        databaseReferenceSender
-                .child(messageId)
-                .setValue(messageModel);
+// Get the current timestamp in South Africa
+        String timestampString = sdf.format(new Date());
+        long timestamp;
 
-        databaseReferenceReciever
-                .child(messageId)
-                .setValue(messageModel);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.READ_PHONE_STATE},100);
+        try {
+            Date date = sdf.parse(timestampString);
+            timestamp = date.getTime(); // Get the timestamp in milliseconds
+        } catch (ParseException e) {
+           // e.printStackTrace();
+            timestamp = 0L; // Handle the error as needed
         }
 
 
+        MessageModel messageModel;
+  if(status.getText().toString().equalsIgnoreCase("Online") || status.getText().toString().equalsIgnoreCase("typing....")){
+      messageModel = new MessageModel(messageId, FirebaseAuth.getInstance().getUid(), message, timestamp, "No", true);
+  }else{
+      messageModel = new MessageModel(messageId, FirebaseAuth.getInstance().getUid(), message, timestamp, "No", false);
+  }
 
+
+
+
+        messageAdapter.add(messageModel);
+        databaseReferenceSender
+                .child(messageId)
+                .setValue(messageModel);
+        databaseReferenceReciever
+                .child(messageId)
+                .setValue(messageModel);
+
+
+
+     /*   String user2FcmToken = "eBhXGSlCQROgxVqwcZDcOn:APA91bEJK3lOx3zAAMGlrMU2dOYQEqndhLgome7-kYCLMMNs71ogCgLBF0BojJGzTACXJO0Stui8oQLcxpQhtXDBBFTt_lumoXv8PMfrk1QvRAxlVlSg7TncWsF4OmnZ9J39ZokL-HKS"; // Replace with User 2's actual FCM token
+
+// Create an intent that will be triggered when the notification is tapped
+        Intent intent = new Intent(getApplicationContext(), HomePage.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+
+// Build the notification
+       NotificationCompat.Builder mbuilder = new NotificationCompat.Builder(getApplicationContext(), "default")
+                .setSmallIcon(R.drawable.edit_profile)
+                .setContentTitle("New message from")
+                .setContentText(message)
+                .setAutoCancel(true) // Auto-cancel the notification when tapped
+                .setContentIntent(pendingIntent);
+
+// Get the NotificationManager
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+// Notify with a specific tag and ID
+        notificationManager.notify("YourNotificationTag", 0, mbuilder.build());*/
+
+      /*  NotificationCompat.Builder mbuilder = (NotificationCompat.Builder)
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.edit_profile,10)
+
+                        .setContentTitle("New message from" )
+                        .setContentText(message);
+
+        NotificationManager notificationManager = (NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(0,mbuilder.build());*/
 
         // Notify the receiver via FCM
-       // sendFCMNotifications(message);
+     //   sendFCMNotification(message);
 
         // Clear the input field
         binding.messageEd.setText("");
         binding.recycler.scrollToPosition(messageAdapter.getItemCount() - 1);
     }
+
+
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
+
+
+
+
+            DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                    .child("isMessageRead")
+                    .child(recieverRoom)
+                    .child("isRead");
+
+// Add a ValueEventListener to read the value
+            isMessageReadRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        // Read the value and store it in a boolean variable
+                        isReceiverReadMessage = Boolean.TRUE.equals(dataSnapshot.getValue(Boolean.class));
+
+
+
+                    } else {
+                       // isReceiverReadMessage =false;
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    // Handle any errors that occur while reading the data
+
+                }
+            });
+
+
             userStateReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    String userRole = snapshot.child("state").getValue(String.class);
+                    userRole = snapshot.child("state").getValue(String.class);
                     boolean userTyping = Boolean.TRUE.equals(snapshot.child("typing").getValue(Boolean.class));
 
                     if (userTyping) {
                         status.setText("typing....");
+                        isOnline=true;
                     } else {
                         status.setText("");
 
                         if ("Online".equalsIgnoreCase(userRole) && !"Online".equalsIgnoreCase(status.getText().toString())) {
                             status.setText("");
                             status.setText(userRole);
+                            isOnline=true;
                         }
                         if (!"Online".equalsIgnoreCase(userRole)) {
                             status.setText("");
                             status.setText("Last seen " + userRole);
+                            isOnline =false;
                         }
                     }
                 }
@@ -278,7 +457,8 @@ public class ChatAct extends AppCompatActivity {
                 }
             });
 
-            handler.postDelayed(this, 100);
+
+            handler.postDelayed(this, timerValue);
         }
     };
 
@@ -293,7 +473,7 @@ public class ChatAct extends AppCompatActivity {
             return null;
         }
     }
-    private void sendFCMNotifications(String message) {
+    private void sendFCMNotification(String message) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         DatabaseReference userReference = databaseReference.child("login").child("email").child(recieverId);
 
@@ -305,18 +485,10 @@ public class ChatAct extends AppCompatActivity {
                     String  fcmToken =  dataSnapshot.child("FCMToken").getValue().toString() ;
 
 
-                    // Create a data payload for the FCM message
-                    RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(fcmToken);
-                    messageBuilder.addData("title", "New Message from " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-                    messageBuilder.addData("body", message);
-                    messageBuilder.addData("click_action", "OPEN_CHAT_ACTIVITY"); // Specify an action to open the chat activity
-
-                    // Send the FCM message
-                    FirebaseMessaging.getInstance().send(messageBuilder.build());
-
                 } else {
                     System.out.println("FCM Token does not exist for this user.");
                 }
+
             }
 
             @Override
@@ -325,10 +497,143 @@ public class ChatAct extends AppCompatActivity {
             }
         });
 
+        // Replace "recipientFCMToken" with the actual FCM token of the recipient
+        String recipientFCMToken = "d7ME_H_jQjC5JwRlWVuVpl:APA91bFEM2rPJAFYfQipV0TSOFNsWR2y5CZj9UgQG8VwYRDFLmT3PQvw_-K8WGhAPzfsbUPP3GCjX4yUjQEIul8u5cwNjxfKKSGD3c7wehoNzk6DgK4jZy-B6tY4Fvc55vxUDbOAr-Y3";
+
+        // Create a data payload for the FCM message
+        RemoteMessage.Builder messageBuilder = new RemoteMessage.Builder(recipientFCMToken);
+        messageBuilder.addData("title", "New Message from " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        messageBuilder.addData("body", message);
+        messageBuilder.addData("click_action", "OPEN_CHAT_ACTIVITY"); // Specify an action to open the chat activity
+
+        // Send the FCM message
+        FirebaseMessaging.getInstance().send(messageBuilder.build());
+
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        timerValue =1000;
+
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
+
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(false);
     }
 
 
+private void publish(String v){
+
+        if(isReceiverReadMessage){
+
+
+                DatabaseReference databaseSenderReadMessage = FirebaseDatabase.getInstance().getReference()
+                        .child("chats")
+                        .child(senderRoom)
+                        .child(v )
+
+                        .child("receiverReadMessage");
+
+                DatabaseReference databaseReceiverReadMessage = FirebaseDatabase.getInstance().getReference()
+                        .child("chats")
+                        .child(recieverRoom)
+                        .child(v )
+
+                        .child("receiverReadMessage");
+
+
+                databaseSenderReadMessage.setValue("Yes");
+                databaseReceiverReadMessage.setValue("Yes");
 
 
 
+
+            }
+
+
+    }
+
+    private void messageArivedOrNot(String v, int i){
+
+            if(!boolList.get(i)){
+
+                DatabaseReference databaseSenderReadMessage = FirebaseDatabase.getInstance().getReference()
+                        .child("chats")
+                        .child(senderRoom)
+                        .child(v )
+
+                        .child("currentReadMessage");
+
+                DatabaseReference databaseReceiverReadMessage = FirebaseDatabase.getInstance().getReference()
+                        .child("chats")
+                        .child(recieverRoom)
+                        .child(v )
+
+                        .child("currentReadMessage");
+
+
+                databaseSenderReadMessage.setValue(true);
+                databaseReceiverReadMessage.setValue(true);
+
+        }
+
+
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        timer.cancel();
+        timer2.cancel();
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
+
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(false);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Timer timer = new Timer();
+        //message event read is true
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
+
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(true);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        timer.cancel();
+        timer2.cancel();
+
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
+
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(false);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
+        timer2.cancel();
+        //message event read is true
+        DatabaseReference isMessageReadRef = FirebaseDatabase.getInstance().getReference()
+                .child("isMessageRead")
+                .child(senderRoom);
+
+// Set the "isRead" value
+        isMessageReadRef.child("isRead").setValue(false);
+    }
 }

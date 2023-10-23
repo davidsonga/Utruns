@@ -87,7 +87,7 @@ class ChatFragment : Fragment() {
                             })
 
                             if (!base64Image.isNullOrEmpty()) {
-                                userList.add(User(fullName, base64Image, uid))
+                                userList.add(User(fullName, base64Image, uid, unReadMessageCount(uid)))
                             }
                         }
 
@@ -98,6 +98,8 @@ class ChatFragment : Fragment() {
                         // Handle error here if needed
                     }
                 })
+
+
                 handler.postDelayed(this, delay.toLong())
             }
         }
@@ -109,6 +111,36 @@ class ChatFragment : Fragment() {
 
         return view
     }
+
+
+    private fun unReadMessageCount(strangerUID: String): Int {
+        val databaseReceiverMessageRead = FirebaseDatabase.getInstance().getReference()
+            .child("chats")
+            .child("Qy8Ub4g9okWMIFl5ZeuCXG9cRTA3ie49nb9lSmY5rHhFSapxVyRRDMJ3")
+            .child("02600625-c8e5-49ef-8f50-1a8457db5eb9")
+        var index = 0 // Counter for "no" values
+
+        databaseReceiverMessageRead.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (dataSnapshot in snapshot.children) {
+                    val currentReadMessage = dataSnapshot.child("receiverReadMessage").value.toString()
+
+                    if (currentReadMessage == "No") { // Check for false instead of "No"
+                        index++
+                    }
+                }
+
+                // Now, 'index' contains the number of "no" values in 'receiverMessageRead'
+                // You can use this count as needed
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle database error
+            }
+        })
+        return index
+    }
+
 
     private fun openChatWithUser(user: User) {
         val intent = Intent(context, ChatAct::class.java)
