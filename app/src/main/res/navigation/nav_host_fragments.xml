@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.utrun.Fragment.Profile"
+        android:name="com.example.utrun.Fragment.ProfileFragment"
         android:label="Profile Fragment"
         tools:layout="@layout/fragment_profile"/>
 </navigation>
