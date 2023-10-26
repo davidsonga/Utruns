@@ -64,7 +64,10 @@ class ProfileFragment : Fragment() {
             val filePath = data.data
             try {
                 selectedImageBitmap = MediaStore.Images.Media.getBitmap(activity?.contentResolver, filePath)
-                binding.profileImageView.setImageBitmap(selectedImageBitmap) // Update the ImageView immediately
+
+                val selectedImageBitmap = MediaStore.Images.Media.getBitmap(activity?.contentResolver, filePath)
+                val encodedImage = convertBitmapToBase64(selectedImageBitmap)
+                setProfileImage(encodedImage)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -158,6 +161,13 @@ class ProfileFragment : Fragment() {
             .load(decodedBitmap)
             .circleCrop()
             .into(binding.profileImageView)
+    }
+
+    private fun convertBitmapToBase64(bitmap: Bitmap): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val byteArray = byteArrayOutputStream.toByteArray()
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
     override fun onDestroyView() {
