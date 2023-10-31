@@ -1,0 +1,74 @@
+@model IEnumerable<Uturn.ViewModels.TaskViewModel>
+@{
+    ViewData["Title"] = "Tasks";
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <script>let table = new DataTable('#tasks-tbl', {
+            ordering: true,
+            searchable: true
+        });</script>
+}
+
+<div class="d-flex align-items-center mb-3">
+    <div>
+        <h1 class="page-header mb-0">Tasks</h1>
+    </div>
+
+    <div class="ms-auto">
+        <a asp-action="Create" class="btn btn-theme"><i class="fa fa-plus-circle fa-fw me-1"></i> Add Task</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 30px !important">
+        <!-- BEGIN table -->
+        <div class="table-responsive">
+            <!--<table class="table table-hover text-nowrap">-->
+            <table id="tasks-tbl" class="display">
+                <thead>
+                    <tr>
+                        <th class="pt-0 pb-2">Employee</th>
+                        <th class="pt-0 pb-2">Vehicle</th>
+                        <th class="pt-0 pb-2">Type</th>
+                        <th class="pt-0 pb-2">Type Of Goods</th>
+                        <th class="pt-0 pb-2">Pickup Location</th>
+                        <th class="pt-0 pb-2">Drop-off Location</th>
+                        <th class="pt-0 pb-2">Rating</th>
+                        <th class="pt-0 pb-2">Status</th>
+                        <th class="pt-0 pb-2">Uploaded Timestamp</th>
+                        <th class="pt-0 pb-2">Assigned Timestamp</th>
+                        <th class="pt-0 pb-2">Completed Timestamp</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.employee)</td>
+                            <td>@Html.DisplayFor(modelItem => item.vehicle)</td>
+                            <td>@Html.DisplayFor(modelItem => item.type)</td>
+                            <td>@Html.DisplayFor(modelItem => item.typeOfGoods)</td>
+                            <td>@Html.DisplayFor(modelItem => item.pickupLocation)</td>
+                            <td>@Html.DisplayFor(modelItem => item.dropoffLocation)</td>
+                            <td>@Html.DisplayFor(modelItem => item.rating)</td>
+                            <td>@Html.DisplayFor(modelItem => item.status)</td>
+                            <td>@Html.DisplayFor(modelItem => item.uploadedTimestamp)</td>
+                            <td>@Html.DisplayFor(modelItem => item.assignedTimestamp)</td>
+                            <td>@Html.DisplayFor(modelItem => item.completedTimestamp)</td>
+
+                            <td>
+                                <a asp-action="Edit" asp-route-key="@item.key">Edit</a> |
+                                <a asp-action="Delete" asp-route-key="@item.key">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- END table -->
+    </div>
+</div>

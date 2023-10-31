@@ -1,0 +1,57 @@
+@model Uturn.ViewModels.TaskCreateViewModel
+@{
+    ViewData["Title"] = "Add Task";
+}
+
+<div class="d-flex align-items-center mb-3">
+    <div>
+        <h1 class="page-header mb-0">Add Task</h1>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="type" class="form-label">Type</label>
+                        <select asp-for="type" class="form-control form-control-lg fs-15px">
+                            <option value="Pickup">Pickup</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                        <span asp-validation-for="type" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="typeOfGoods" class="form-label">Type Of Goods</label>
+                        <input asp-for="typeOfGoods" class="form-control form-control-lg fs-15px" placeholder="" />
+                        <span asp-validation-for="typeOfGoods" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="pickupLocation" class="form-label">Pickup Location</label>
+                        <input asp-for="pickupLocation" class="form-control form-control-lg fs-15px" placeholder="" />
+                        <span asp-validation-for="pickupLocation" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="selectedDropoffLocationKey" class="form-label">Drop-off Location</label>
+                        <select asp-for="selectedDropoffLocationKey" asp-items="@(new SelectList(Model.Locations, "key", "name"))" class="form-control form-control-lg fs-15px"></select>
+                        <span asp-validation-for="selectedDropoffLocationKey" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <input type="submit" value="Upload" class="btn btn-theme btn-lg fs-15px fw-500 d-block w-100" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

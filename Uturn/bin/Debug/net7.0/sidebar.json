@@ -1,0 +1,32 @@
+﻿{
+  "sidebarMenu": [
+    {
+      "text": "Navigation",
+      "is_header": true
+    },
+    {
+      "controller": "Employee",
+      "action": "Index",
+      "icon": "fa fa-users",
+      "text": "Employees"
+    },
+    {
+      "controller": "Task",
+      "action": "Index",
+      "icon": "fa fa-plus-square",
+      "text": "Tasks"
+    },
+    {
+      "controller": "Location",
+      "action": "Index",
+      "icon": "fa fa-map-pin",
+      "text": "Locations"
+    },
+    {
+      "controller": "Vehicle",
+      "action": "Index",
+      "icon": "fa fa-truck",
+      "text": "Vehicles"
+    }
+  ]
+}

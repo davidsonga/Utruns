@@ -1,0 +1,43 @@
+﻿<!-- BEGIN #header -->
+<div id="header" class="app-header">
+    <!-- BEGIN mobile-toggler -->
+    <div class="mobile-toggler">
+        <button type="button" class="menu-toggler" data-toggle="sidebar-mobile">
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </div>
+    <!-- END mobile-toggler -->
+    <!-- BEGIN brand -->
+    <div class="brand">
+        <div class="desktop-toggler">
+            <button type="button" class="menu-toggler" data-toggle="sidebar-minify">
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+
+        <a class="brand-logo" style="height: auto !important">
+            <img src="/img/uturn-logo.png" alt="" height="45">
+        </a>
+    </div>
+    <!-- END brand -->
+    <!-- BEGIN menu -->
+    <div class="menu" style="flex: 0 !important">
+        <div class="menu-item dropdown">
+            <a style="flex-en" href="#" data-bs-toggle="dropdown" data-display="static" class="menu-link">
+                <div class="menu-img online">
+                    <img src="/img/user/user.jpg" alt="" class="ms-100 mh-100 rounded-circle">
+                </div>
+                <!--<div class="menu-text"></div>-->
+            </a>
+            <div class="dropdown-menu dropdown-menu-end me-lg-3">
+                <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                    <button class="dropdown-item d-flex align-items-center" type="submit">Log out <i class="fa fa-toggle-off fa-fw ms-auto text-body text-opacity-50"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- END menu -->
+</div>
+<!-- END #header -->

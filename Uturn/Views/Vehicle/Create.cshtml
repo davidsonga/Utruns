@@ -1,0 +1,53 @@
+@model Uturn.Models.Vehicle
+
+@{
+    ViewData["Title"] = "Add Vehicle";
+}
+
+<div class="d-flex align-items-center mb-3">
+    <div>
+        <h1 class="page-header mb-0">Add Vehicle</h1>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="model" class="form-label">Model</label>
+                        <input asp-for="model" class="form-control form-control-lg fs-15px" />
+                        <span asp-validation-for="model" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="brand" class="form-label">Brand</label>
+                        <input asp-for="brand" class="form-control form-control-lg fs-15px" />
+                        <span asp-validation-for="brand" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="type" class="form-label">Type</label>
+                        <select asp-for="type" class="form-control form-control-lg fs-15px">
+                            <option value="Van">Van</option>
+                            <option value="Pickup Truck">Pickup Truck</option>
+                            <option value="Car">Car</option>
+                        </select>
+                        <span asp-validation-for="type" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="numberPlate" class="form-label">Number Plate</label>
+                        <input asp-for="numberPlate" class="form-control form-control-lg fs-15px" />
+                        <span asp-validation-for="numberPlate" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <input type="submit" value="Add" class="btn btn-theme btn-lg fs-15px fw-500 d-block w-100" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>

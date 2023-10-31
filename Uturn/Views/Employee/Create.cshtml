@@ -1,0 +1,47 @@
+@model Uturn.Models.Employee
+
+@{
+    ViewData["Title"] = "Add Employee";
+}
+
+<div class="d-flex align-items-center mb-3">
+    <div>
+        <h1 class="page-header mb-0">Add Employee</h1>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control form-control-lg fs-15px" placeholder="username@address.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="name" class="form-label">Name</label>
+                        <input asp-for="name" class="form-control form-control-lg fs-15px" />
+                        <span asp-validation-for="name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="surname" class="form-label">Surname</label>
+                        <input asp-for="surname" class="form-control form-control-lg fs-15px" />
+                        <span asp-validation-for="surname" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <input type="submit" value="Add" class="btn btn-theme btn-lg fs-15px fw-500 d-block w-100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Default password: 12345678</label>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</div>

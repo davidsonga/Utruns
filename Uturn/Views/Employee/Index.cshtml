@@ -1,0 +1,77 @@
+@model IEnumerable<Uturn.Models.Employee>
+@{
+    ViewData["Title"] = "Employees";
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <script>
+        let table = new DataTable('#employees-tbl', {
+            ordering: true,
+            searchable: true,
+            "columnDefs": [{
+                "targets": 2,
+                "searchable": false
+            }]
+        });
+    </script>
+}
+
+<div class="d-flex align-items-center mb-3">
+    <div>
+        <h1 class="page-header mb-0">Employees</h1>
+    </div>
+
+    <div class="ms-auto">
+        <a asp-action="Create" class="btn btn-theme"><i class="fa fa-plus-circle fa-fw me-1"></i> Add Employee</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 30px !important">
+        <!-- BEGIN table -->
+        <div class="table-responsive">
+            <!--<table class="table table-hover text-nowrap">-->
+            <table id="employees-tbl" class="display">
+                <thead>
+                    <tr>
+                        <th class="pt-0 pb-2">Email</th>
+                        <th class="pt-0 pb-2">Role</th>
+                        <th class="pt-0 pb-2">Name</th>
+                        <th class="pt-0 pb-2">Surname</th>
+                        <th class="pt-0 pb-2">Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Email)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Role)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.surname)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.state)
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-key="@item.key">Edit</a> |
+                                <a asp-action="Delete" asp-route-key="@item.key">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <!-- END table -->
+    </div>
+</div>

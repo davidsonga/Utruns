@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Scripts {
+    <script src="~/lib/apexcharts/dist/apexcharts.min.js"></script>
+    <script src="~/js/demo/dashboard.demo.js"></script>
+}
+
+
+<h1 class="page-header mb-3">
+    Welcome!
+</h1>
+
+<!-- BEGIN row -->
+<div class="row">
+    <!-- BEGIN col-6 -->
+    <div class="col-xl-6 mb-3">
+        <!-- BEGIN card -->
+        <div class="card h-100">
+            <!-- BEGIN card-body -->
+            <div class="card-body">
+                <div class="d-flex mb-3">
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">Sales Analytics</h5>
+                        <div class="fs-13px">Weekly sales performance chart</div>
+                    </div>
+                    <a href="javascript:;" class="text-secondary"><i class="fa fa-redo"></i></a>
+                </div>
+                <div id="chart"></div>
+            </div>
+            <!-- END card-body -->
+        </div>
+        <!-- END card -->
+    </div>
+    <!-- END col-6 -->
+    <!-- BEGIN col-6 -->
+    <div class="col-xl-6">
+        <!-- BEGIN row -->
+        <div class="row">
+            <!-- BEGIN col-6 -->
+            <div class="col-sm-6">
+                <!-- BEGIN card -->
+                <div class="card mb-3 overflow-hidden fs-13px border-0 bg-gradient-custom-teal" style="min-height: 199px;">
+                    <!-- BEGIN card-img-overlay -->
+                    <div class="card-img-overlay mb-n4 me-n4 d-flex" style="bottom: 0; top: auto;">
+                        <img src="/img/icon/order.svg" alt="" class="ms-auto d-block mb-n3" style="max-height: 105px">
+                    </div>
+                    <!-- END card-img-overlay -->
+                    <!-- BEGIN card-body -->
+                    <div class="card-body position-relative">
+                        <h5 class="text-white text-opacity-80 mb-3 fs-16px">New Orders</h5>
+                        <h3 class="text-white mt-n1">56</h3>
+                        <div class="progress bg-black bg-opacity-50 mb-2" style="height: 6px">
+                            <div class="progrss-bar progress-bar-striped bg-white" style="width: 80%"></div>
+                        </div>
+                        <div class="text-white text-opacity-80 mb-4"><i class="fa fa-caret-up"></i> 16% increase <br>compare to last week</div>
+                        <div><a href="#" class="text-white d-flex align-items-center text-decoration-none">View report <i class="fa fa-chevron-right ms-2 text-white text-opacity-50"></i></a></div>
+                    </div>
+                    <!-- BEGIN card-body -->
+                </div>
+                <!-- END card -->
+                <!-- BEGIN card -->
+                <div class="card mb-3 overflow-hidden fs-13px border-0 bg-gradient-custom-teal" style="min-height: 199px;">
+                    <!-- BEGIN card-img-overlay -->
+                    <div class="card-img-overlay mb-n4 me-n4 d-flex" style="bottom: 0; top: auto;">
+                        <img src="/img/icon/visitor.svg" alt="" class="ms-auto d-block mb-n3" style="max-height: 105px">
+                    </div>
+                    <!-- END card-img-overlay -->
+                    <!-- BEGIN card-body -->
+                    <div class="card-body position-relative">
+                        <h5 class="text-white text-opacity-80 mb-3 fs-16px">Page Visitors</h5>
+                        <h3 class="text-white mt-n1">60.5k</h3>
+                        <div class="progress bg-black bg-opacity-50 mb-2" style="height: 6px">
+                            <div class="progrss-bar progress-bar-striped bg-white" style="width: 50%"></div>
+                        </div>
+                        <div class="text-white text-opacity-80 mb-4"><i class="fa fa-caret-up"></i> 33% increase <br>compare to last week</div>
+                        <div><a href="#" class="text-white d-flex align-items-center text-decoration-none">View report <i class="fa fa-chevron-right ms-2 text-white text-opacity-50"></i></a></div>
+                    </div>
+                    <!-- END card-body -->
+                </div>
+                <!-- END card -->
+            </div>
+            <!-- END col-6 -->
+            <!-- BEGIN col-6 -->
+            <div class="col-sm-6">
+                <!-- BEGIN card -->
+                <div class="card mb-3 overflow-hidden fs-13px border-0 bg-gradient-custom-teal" style="min-height: 199px;">
+                    <!-- BEGIN card-img-overlay -->
+                    <div class="card-img-overlay mb-n4 me-n4 d-flex" style="bottom: 0; top: auto;">
+                        <img src="/img/icon/email.svg" alt="" class="ms-auto d-block mb-n3" style="max-height: 105px">
+                    </div>
+                    <!-- END card-img-overlay -->
+                    <!-- BEGIN card-body -->
+                    <div class="card-body position-relative">
+                        <h5 class="text-white text-opacity-80 mb-3 fs-16px">Unread email</h5>
+                        <h3 class="text-white mt-n1">30</h3>
+                        <div class="progress bg-black bg-opacity-50 mb-2" style="height: 6px">
+                            <div class="progrss-bar progress-bar-striped bg-white" style="width: 80%"></div>
+                        </div>
+                        <div class="text-white text-opacity-80 mb-4"><i class="fa fa-caret-down"></i> 5% decrease <br>compare to last week</div>
+                        <div><a href="#" class="text-white d-flex align-items-center text-decoration-none">View report <i class="fa fa-chevron-right ms-2 text-white text-opacity-50"></i></a></div>
+                    </div>
+                    <!-- END card-body -->
+                </div>
+                <!-- END card -->
+                <!-- BEGIN card -->
+                <div class="card mb-3 overflow-hidden fs-13px border-0 bg-gradient-custom-teal" style="min-height: 199px;">
+                    <!-- BEGIN card-img-overlay -->
+                    <div class="card-img-overlay mb-n4 me-n4 d-flex" style="bottom: 0; top: auto;">
+                        <img src="/img/icon/browser.svg" alt="" class="ms-auto d-block mb-n3" style="max-height: 105px">
+                    </div>
+                    <!-- end card-img-overlay -->
+                    <!-- BEGIN card-body -->
+                    <div class="card-body position-relative">
+                        <h5 class="text-white text-opacity-80 mb-3 fs-16px">Page Views</h5>
+                        <h3 class="text-white mt-n1">320.4k</h3>
+                        <div class="progress bg-black bg-opacity-50 mb-2" style="height: 6px">
+                            <div class="progrss-bar progress-bar-striped bg-white" style="width: 80%"></div>
+                        </div>
+                        <div class="text-white text-opacity-80 mb-4"><i class="fa fa-caret-up"></i> 20% increase <br>compare to last week</div>
+                        <div><a href="#" class="text-white d-flex align-items-center text-decoration-none">View report <i class="fa fa-chevron-right ms-2 text-white text-opacity-50"></i></a></div>
+                    </div>
+                    <!-- END card-body -->
+                </div>
+                <!-- END card -->
+            </div>
+            <!-- BEGIN col-6 -->
+        </div>
+        <!-- END row -->
+    </div>
+    <!-- END col-6 -->
+</div>
+<!-- END row -->
