@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".Activity.task_details"
+    android:background="@drawable/background_image">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/collection_type_border_rounded">
+
+        <TextView
+            android:id="@+id/txt_TaskCode"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Task code"
+            android:layout_marginVertical="5dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:padding="8dp"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/user_image"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/circle_profile_picture"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            app:civ_border_color="@color/green"
+            app:civ_border_width="2dp" />
+
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded">
+
+        <TextView
+            android:id="@+id/txt_vehicle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Vehicle"
+            android:layout_marginVertical="5dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:padding="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded">
+
+        <TextView
+            android:id="@+id/txt_Task"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Task"
+            android:layout_marginVertical="5dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:padding="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded">
+
+        <TextView
+            android:id="@+id/txt_Drop"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Drop site"
+            android:layout_marginVertical="5dp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:padding="8dp"/>
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/img_goods"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="10dp"
+        app:cardBackgroundColor="@color/white">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imageView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/image_place_holder"
+            app:shapeAppearance="?attr/shapeAppearanceMediumComponent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Card.Media" />
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OR"
+        style="@style/body_content"
+        android:layout_marginHorizontal="45dp"
+        android:textAlignment="center"/>
+
+    <Button
+        android:id="@+id/btn_TakePhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open Camera and take photo"
+        app:icon="@drawable/baseline_photo_camera_24"
+        android:background="@drawable/light_green_btn"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="45dp"/>
+
+    <Button
+        android:id="@+id/btn_finishOnboarding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Finish Onboarding"
+        android:background="@drawable/green_btn"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="45dp"/>
+
+</LinearLayout>
+

@@ -78,10 +78,17 @@
         android:layout_height="wrap_content"
         android:padding="15dp"
         android:textColor="@color/white"
+
         android:textStyle="bold"/>
 
 
 
+
+
+
+
+
+</RelativeLayout>
 
 
     <ImageView
@@ -90,20 +97,9 @@
         android:layout_height="wrap_content"
         android:src="@drawable/send_image"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_centerVertical="true"
         android:padding="15dp"/>
-
-    <ImageView
-        android:id="@+id/sendPicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/camera"
-        android:layout_toStartOf="@+id/sendMessage"
-        android:layout_marginEnd="10dp"
-        android:layout_centerVertical="true"
-
-        android:padding="15dp"/>
-</RelativeLayout>
 
 
 

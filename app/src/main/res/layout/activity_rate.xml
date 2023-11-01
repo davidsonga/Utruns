@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_image"
+    tools:context=".Activity.Rate">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/collection_type_border_rounded">
+
+        <TextView
+            android:id="@+id/txt_pageTitle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="TASK PERFORMANCE REPORT"
+            android:layout_marginVertical="5dp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:padding="8dp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please take some time to rate my performance"
+        style="@style/body_content"
+        android:layout_marginHorizontal="45dp"
+        android:layout_marginTop="10dp"
+        android:textAlignment="center"/>
+
+    <Spinner
+        android:id="@+id/spinner1"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.ExposedDropdownMenu"
+        android:gravity="center"/>
+
+    <Spinner
+        android:id="@+id/spinner2"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.ExposedDropdownMenu"
+        android:gravity="center"/>
+
+    <Spinner
+        android:id="@+id/spinner3"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.ExposedDropdownMenu"
+        android:gravity="center"/>
+
+    <Spinner
+        android:id="@+id/spinner4"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.ExposedDropdownMenu"
+        android:gravity="center"/>
+
+    <Spinner
+        android:id="@+id/spinner5"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/list_box_border_rounded"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.ExposedDropdownMenu"
+        android:gravity="center"/>
+
+
+
+
+
+
+    <Button
+        android:id="@+id/btn_finishOnboarding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submt"
+        android:background="@drawable/green_btn"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="45dp"/>
+
+
+</LinearLayout>

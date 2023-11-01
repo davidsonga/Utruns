@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/transparent">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/select_task_border_rounded">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/employeeImageView"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/user"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#FF000000"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/txt_employeeName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Employee Name"
+                        android:textSize="18sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/txt_employeeSurname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Employee Surname"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_ID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task ID"
+                android:background="@drawable/select_task_border_rounded"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:padding="6dp"/>
+
+            <TextView
+                android:id="@+id/txt_carBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Car Brand"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:padding="6dp"/>
+
+            <TextView
+                android:id="@+id/txt_numberPlate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Number Plate"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:padding="6dp"/>
+
+            <TextView
+                android:id="@+id/txt_pickLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick Location"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:padding="6dp"/>
+
+            <TextView
+                android:id="@+id/txt_dropLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Drop Location"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:padding="6dp"/>
+
+            <TextView
+                android:id="@+id/txt_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textSize="18sp"
+                android:layout_marginTop="2dp"
+                android:padding="6dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:id="@+id/txt_typeOfGoods"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Type of Goods"
+                    android:background="@drawable/collection_type_border_rounded"
+                    android:textSize="18sp"
+                    android:padding="6dp"
+                    android:layout_centerVertical="true"/>
+
+                <TextView
+                    android:id="@+id/select_task_button"
+                    android:background="@drawable/select_task_border_rounded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Finish Task"
+                    android:layout_alignParentEnd="true"
+                    android:textSize="18sp"
+                    android:padding="8dp"/>
+
+            </RelativeLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

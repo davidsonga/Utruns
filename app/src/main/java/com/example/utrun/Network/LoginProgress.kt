@@ -2,8 +2,11 @@ package com.example.utrun.Network
 
 
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.widget.Toast
+import com.example.utrun.Activity.SelectCar
 import com.example.utrun.HomePage
 import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.MyApp
@@ -53,6 +56,7 @@ class LoginProgress {
             val usersReference = databaseReference.child("login").child("email").child(userId)
 
             usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                @SuppressLint("SuspiciousIndentation")
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     val userRole = dataSnapshot.child("Role").value.toString()
                     val picture = dataSnapshot.child("Picture").value.toString()
@@ -61,8 +65,8 @@ class LoginProgress {
                     val activity3: HomePage = HomePage()
 
 
-                    if (userRole == expectedRole) {
-                        isTrue = true
+                   // if (userRole == expectedRole) {
+                       // isTrue = true
                         objProgress.isProgressDialogDisable()
                         // I used picture.length < 5 because if picture is empty and you use isNull it returns a wrong answer
                         if (picture.length < 5) {
@@ -77,16 +81,16 @@ class LoginProgress {
                             objProgress.isProgressDialogDisable()
                             isProfilePicture = true
                             Toast.makeText(activity, "Login success", Toast.LENGTH_LONG).show()
-                            objintent.intent(activity, activity3)
+                            decisionMking(activity)
                         }
 
                         // Add the FCM token to the user's data
                         usersReference.child("FCMToken").setValue(userToken)
-                    } else {
+                   /* } else {
                         isTrue = false
                         objProgress.isProgressDialogDisable()
                         Toast.makeText(activity, "Role does not match, user is not authorized", Toast.LENGTH_LONG).show()
-                    }
+                    }*/
                 }
 
                 override fun onCancelled(databaseError: DatabaseError) {
@@ -96,6 +100,41 @@ class LoginProgress {
                 }
             })
         }
+
+
     }
+    private fun decisionMking(activity: Activity){
+        var userHasCar:Boolean = false;
+        FirebaseDatabase.getInstance().reference.child("vehicles").addValueEventListener(object :ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for(vehicleSnapshot in snapshot.children){
+                    val vehicleKey = vehicleSnapshot.key
+                    val isAvailable:Boolean = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java) == true
+                    val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
+                    if(!isAvailable && employeeUID == FirebaseAuth.getInstance().uid){
+
+                        userHasCar=true
+                    }
+
+
+                }
+                if(userHasCar){
+                    var  intent: Intent = Intent(activity, HomePage::class.java)
+                    activity.startActivity(intent)
+
+
+                }else{
+                    var  intent: Intent = Intent(activity, SelectCar::class.java)
+                    activity.startActivity(intent)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
 
 }

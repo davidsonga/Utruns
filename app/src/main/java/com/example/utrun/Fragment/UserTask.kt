@@ -10,7 +10,9 @@ import com.example.utrun.R
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-class Explore : Fragment() {
+
+class UserTask : Fragment() {
+
     private var param1: String? = null
     private var param2: String? = null
 
@@ -26,7 +28,7 @@ class Explore : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_explore, container, false)
+        val view = inflater.inflate(R.layout.fragment_user_task, container, false)
 
         if (savedInstanceState == null) {
             replaceFragment(InboxFragment())
@@ -35,8 +37,7 @@ class Explore : Fragment() {
         val radioGroup: RadioGroup = view.findViewById(R.id.toggle)
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.search -> replaceFragment(OutGoingFragment())
-
+                R.id.search -> replaceFragment(InboxFragment())
                 R.id.offer -> replaceFragment(InboxFragment())
             }
         }

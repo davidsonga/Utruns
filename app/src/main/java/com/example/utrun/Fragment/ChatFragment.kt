@@ -1,7 +1,9 @@
 package com.example.utrun.Fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -44,22 +46,26 @@ class ChatFragment : Fragment() {
         databaseReference = FirebaseDatabase.getInstance().reference.child("login").child("email")
         val handler = Handler()
         val delay = 1000 // 1 second
-
+        var uid:String =""
         val fetchDataRunnable = object : Runnable {
             override fun run() {
                 databaseReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         val userList = mutableListOf<User>()
-
                         for (childSnapshot in dataSnapshot.children) {
-                            val base64Image = childSnapshot.child("Picture").value as String?
-                            val name = childSnapshot.child("name").getValue(String::class.java)
-                            val surname = childSnapshot.child("surname").getValue(String::class.java)
-                            val fullName = "$name $surname"
-                            val uid = childSnapshot.key.toString()
+
+                                val base64Image = childSnapshot.child("Picture").value as String?
+                                val name = childSnapshot.child("name").getValue(String::class.java)
+                                val surname = childSnapshot.child("surname").getValue(String::class.java)
+
+                                val fullName = "$name $surname"
+
+                            uid = childSnapshot.key.toString()
+                            val currentuid = childSnapshot.key.toString()
                             // Reference to the chat node for this user
                             val chatReference = FirebaseDatabase.getInstance().getReference("chats")
-                                .child(FirebaseAuth.getInstance().currentUser?.uid + uid)
+                                .child(FirebaseAuth.getInstance().currentUser?.uid + currentuid)
+
 
                             // Query to get the last message, sorted by timestamp
                             val query = chatReference.orderByChild("timestamp").limitToLast(1)
@@ -70,11 +76,11 @@ class ChatFragment : Fragment() {
                                     if (messageSnapshot.exists()) {
                                         for (messageData in messageSnapshot.children) {
                                             val lastMessage = messageData.child("message").getValue(String::class.java)
-                                            lastText[uid] = lastMessage.toString()
+                                            lastText[currentuid] = lastMessage.toString()
                                         }
                                     } else {
                                         // Handle the case where there are no messages
-                                        lastText[uid] = "No messages"
+                                        lastText[currentuid] = "No messages"
                                     }
 
                                     // Notify the adapter of the data change
@@ -86,9 +92,11 @@ class ChatFragment : Fragment() {
                                 }
                             })
 
-                            if (!base64Image.isNullOrEmpty()) {
-                                userList.add(User(fullName, base64Image, uid, unReadMessageCount(uid)))
+                            if (!base64Image.isNullOrEmpty() &&uid != FirebaseAuth.getInstance().uid) {
+                                userList.add(User(fullName, base64Image, uid  ))
+
                             }
+
                         }
 
                         userAdapter.setData(userList)
@@ -114,40 +122,68 @@ class ChatFragment : Fragment() {
 
 
     private fun unReadMessageCount(strangerUID: String): Int {
-        val databaseReceiverMessageRead = FirebaseDatabase.getInstance().getReference()
-            .child("chats")
-            .child("Qy8Ub4g9okWMIFl5ZeuCXG9cRTA3ie49nb9lSmY5rHhFSapxVyRRDMJ3")
-            .child("02600625-c8e5-49ef-8f50-1a8457db5eb9")
-        var index = 0 // Counter for "no" values
 
-        databaseReceiverMessageRead.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (dataSnapshot in snapshot.children) {
-                    val currentReadMessage = dataSnapshot.child("receiverReadMessage").value.toString()
+                databaseReference.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
 
-                    if (currentReadMessage == "No") { // Check for false instead of "No"
-                        index++
+                        for (childSnapshot in dataSnapshot.children) {
+
+                            val uid = childSnapshot.key.toString()
+                            // Reference to the chat node for this user
+                            val chatReference = FirebaseDatabase.getInstance().getReference("chats")
+                                .child(FirebaseAuth.getInstance().currentUser?.uid + uid)
+
+
+                            // Query to get the last message, sorted by timestamp
+                            val query = chatReference.orderByChild("timestamp").limitToLast(1)
+
+                            query.addListenerForSingleValueEvent(object : ValueEventListener {
+                                @SuppressLint("NotifyDataSetChanged")
+                                override fun onDataChange(messageSnapshot: DataSnapshot) {
+                                    if (messageSnapshot.exists()) {
+                                        for (messageData in messageSnapshot.children) {
+                                            val lastMessage = messageData.child("message")
+                                                .getValue(String::class.java)
+
+                                        }
+                                    } else {
+                                        // Handle the case where there are no messages
+
+                                    }
+
+                                    // Notify the adapter of the data change
+                                    userAdapter.notifyDataSetChanged()
+                                }
+
+                                override fun onCancelled(databaseError: DatabaseError) {
+                                    // Handle the error here if needed
+                                }
+                            })
+
+                        }
                     }
-                }
-
-                // Now, 'index' contains the number of "no" values in 'receiverMessageRead'
-                // You can use this count as needed
-            }
 
             override fun onCancelled(error: DatabaseError) {
                 // Handle database error
             }
         })
-        return index
+        return 0
     }
 
 
     private fun openChatWithUser(user: User) {
+
+        val sharedPref:SharedPreferences = requireActivity().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putString("key", user.pictureUrl) // Replace "key" and "value" with your actual data
+        editor.apply()
         val intent = Intent(context, ChatAct::class.java)
         intent.putExtra("fullName", user.fullName)
-        intent.putExtra("pictureUrl", user.pictureUrl)
+        // intent.putExtra("pictureUrl", user.pictureUrl)
         intent.putExtra("id", user.uid)
         startActivity(intent)
+
+
     }
 
     override fun onDestroyView() {

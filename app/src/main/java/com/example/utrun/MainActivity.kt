@@ -1,25 +1,35 @@
 package com.example.utrun
 
-import android.Manifest
-import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.utrun.Activity.Rate
+import com.example.utrun.Activity.SelectCar
 import com.example.utrun.Network.LoginProgress
 import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.AppStateService
 import com.example.utrun.Service.MyApp
+import com.example.utrun.Service.isDeviceConnectToInternet
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.pubnub.api.PNConfiguration
+import com.pubnub.api.PubNub
+import java.util.Arrays
 
 
 class MainActivity   :AppCompatActivity()  {
@@ -32,6 +42,9 @@ private var selectedUserRole: String = ""
     private lateinit var auth: FirebaseAuth
     private lateinit var appLifecycleCallback: AppLifecycleCallback
     private var refreshedToken:String =""
+    private lateinit var ln:LinearLayout
+    private lateinit var rl:RelativeLayout
+    private lateinit var btnInternetRefresh:Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,15 +54,19 @@ private var selectedUserRole: String = ""
 
 
 
-
-
+         ln = findViewById<LinearLayout>(R.id.ln)
+          rl = findViewById<RelativeLayout>(R.id.rl)
         //declaring obj variable
         emailEt = findViewById(R.id.emailEt)
         passwordEt = findViewById(R.id.passwordEt)
         btn_logIn = findViewById(R.id.btn_logIn)
         //calling the life cycle of the app
 
-
+        btnInternetRefresh =findViewById(R.id.btnInternetRefresh)
+        btnInternetRefresh.setOnClickListener(){
+         rl.visibility= View.GONE;
+            onStart()
+        }
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -129,12 +146,24 @@ private var selectedUserRole: String = ""
 
     override fun onStart() {
         super.onStart()
+        val con: isDeviceConnectToInternet = isDeviceConnectToInternet()
         val mAuth = FirebaseAuth.getInstance().currentUser
-        if(mAuth != null){
-            appLifecycleCallback = (application as MyApp).appLifecycleCallback
-            var  intent:Intent= Intent(this, HomePage::class.java)
-            startActivity(intent)
-        }
+        ln = findViewById<LinearLayout>(R.id.ln)
+        rl = findViewById<RelativeLayout>(R.id.rl)
+
+        ln.visibility=View.GONE
+        if(con.isInternetConnected(this)){
+            if(mAuth != null){
+                appLifecycleCallback = (application as MyApp).appLifecycleCallback
+                decisionMking()
+            }else{
+                ln.visibility=View.VISIBLE
+            }
+        }else{
+            rl.visibility = View.VISIBLE
+            btnInternetRefresh.visibility= View.VISIBLE
+    }
+
     }
 
     //do not remove/modify this please
@@ -151,6 +180,42 @@ private var selectedUserRole: String = ""
 
 
     }
+
+    private fun decisionMking(){
+        var userHasCar:Boolean = false;
+        FirebaseDatabase.getInstance().reference.child("vehicles").addValueEventListener(object :ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+             for(vehicleSnapshot in snapshot.children){
+                 val vehicleKey = vehicleSnapshot.key
+                 val isAvailable:Boolean = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java) == true
+                 val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
+                 if(!isAvailable && employeeUID == FirebaseAuth.getInstance().uid){
+
+                     userHasCar=true
+                 }
+
+
+             }
+                if(userHasCar){
+                    var  intent:Intent= Intent(this@MainActivity, HomePage::class.java)
+                    startActivity(intent)
+
+
+                }else{
+                    var  intent:Intent= Intent(this@MainActivity, SelectCar::class.java)
+                    startActivity(intent)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+
+
 
 
 

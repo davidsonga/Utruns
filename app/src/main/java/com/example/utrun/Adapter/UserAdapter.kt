@@ -12,12 +12,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.utrun.R
 import com.example.utrun.models.User
+import com.example.utrun.models.timespan
 
 class UserAdapter(
     private var userList: List<User>,
     private val itemClickListener: (User) -> Unit,
     private val lastText: Map<String, String> // Map user ID to last text
 ) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_picture, parent, false)
@@ -28,6 +30,7 @@ class UserAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val user = userList[position]
 
+
         // Decode the Base64 string to a Bitmap and set it in the ImageView
         val imageBytes = Base64.decode(user.pictureUrl, Base64.DEFAULT)
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
@@ -35,12 +38,16 @@ class UserAdapter(
 
         // Set the full name in the TextView
         holder.userEmail.text = user.fullName
-        holder.messageCount.text= user.index.toString()
+
+        //holder.messageCount.text= count.index.toString()
         // Get the last message from the lastText map using the user's UID
         val lastMessage = lastText[user.uid]
 
         // Set the last message in the TextView
         holder.lastMessage.text = lastMessage?.take(30)
+
+
+
 
         holder.itemView.setOnClickListener {
             itemClickListener(user)
