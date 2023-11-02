@@ -28,7 +28,7 @@ class OutGoingFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var selectedTaskAdapter: SelectedTaskAdapter
     private lateinit var databaseReference: DatabaseReference
-    private val keyList = mutableListOf<String>()
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -85,6 +85,7 @@ class OutGoingFragment : Fragment() {
                                         locationRef.child(dropID.toString()).addValueEventListener(object : ValueEventListener {
                                             override fun onDataChange(snapshot: DataSnapshot) {
                                                 val dropoff = snapshot.child("address").getValue(String::class.java)
+                                                val name = snapshot.child("name").getValue(String::class.java)
 
                                                 // Format the timestamp as a String if needed
                                                 val assignedTimestamp = assignedTimestampLong?.toString() ?: ""
@@ -101,7 +102,8 @@ class OutGoingFragment : Fragment() {
                                                         numberPlate,
                                                         assignedTimestamp,
                                                         employeeUid,
-                                                        key
+                                                        key,
+                                                        name
                                                     )
 
                                                     // Add the SelectedTask to the list and notify the adapter

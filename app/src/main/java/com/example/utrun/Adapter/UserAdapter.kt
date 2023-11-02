@@ -44,7 +44,7 @@ class UserAdapter(
         val lastMessage = lastText[user.uid]
 
         // Set the last message in the TextView
-        holder.lastMessage.text = lastMessage?.take(30)
+        holder.lastMessage.text = lastMessage?.take(20)
 
 
 

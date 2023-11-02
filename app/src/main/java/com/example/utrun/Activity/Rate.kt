@@ -103,7 +103,7 @@ class Rate : AppCompatActivity() {
                uploadRate.child("Process and Efficiency").setValue(spinner5Value)
                uploadRate.child("Rate time").setValue(currentTimeMillis)
 
-                Toast.makeText(this,"Rate success",Toast.LENGTH_LONG).show()
+                Toast.makeText(this,"Rate Submitted",Toast.LENGTH_LONG).show()
 
                 val intent:Intent = Intent(this,MainActivity::class.java)
                 startActivity(intent)

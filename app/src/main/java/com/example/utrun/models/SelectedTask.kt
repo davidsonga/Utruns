@@ -12,5 +12,6 @@ data class SelectedTask(
     val numberPlate: String?,
     val time: String?,
     val UID: String?,
-    val Key: String?
+    val Key: String?,
+    val name: String?
 )

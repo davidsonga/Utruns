@@ -14,6 +14,7 @@ import android.util.Base64
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.example.utrun.MainActivity
 import com.example.utrun.R
 import com.example.utrun.util.intents
@@ -178,7 +179,7 @@ class task_details : AppCompatActivity() {
         //upload uid
 
         val dutyCompleted = FirebaseDatabase.getInstance().reference.child("dutyCompleted")
-            .child(task.toString()).child(uid.toString())
+            .child(Keys)
         dutyCompleted.child("PickLocation").setValue(pickLocation)
         dutyCompleted.child("DropLocation").setValue(dropLocation)
         dutyCompleted.child("vehicle").setValue(vehicle)
@@ -199,6 +200,7 @@ class task_details : AppCompatActivity() {
                            val currentUser = FirebaseAuth.getInstance().uid+Keys
                            if(currentJob ==currentUser &&completedTimestamp ==0L ){
                                tasks.child(Keys).child("completedTimestamp").setValue(currentTimeMillis)
+                               tasks.child(Keys).child("ratingId").setValue(Keys)
 
                            }
 
@@ -216,7 +218,7 @@ class task_details : AppCompatActivity() {
                }
 
            })
-
+        Toast.makeText(this,"Finish task has been submitted",Toast.LENGTH_LONG).show()
         val intent :Intent = Intent(this, Rate::class.java)
         intent.putExtra("taskID",task)
         startActivity(intent)

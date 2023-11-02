@@ -4,24 +4,26 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
-import android.opengl.Visibility
+import android.location.Address
+import android.location.Geocoder
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.utrun.Activity.ChatAct
+
 import com.example.utrun.Activity.task_details
-import com.example.utrun.Fragment.OutGoingFragment
+import com.example.utrun.MainActivity
 import com.example.utrun.R
 import com.example.utrun.models.SelectedTask
-import com.example.utrun.models.Tasks
-import com.example.utrun.util.intents
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,7 +52,7 @@ private val ctx:Context = context
             holder.txt_times.text = "Time selected: ${formattedDate.toString()}"
             holder.employeeName.text = "User name: ${selectedTask.employeeName}"
             holder.employeeSurname.text = "User surname: ${selectedTask.employeeSurname}"
-            holder.taskCode.text = "Task code: ${selectedTask.taskCode}"
+            holder.taskCode.text = "Organization: ${selectedTask.name}\nTask code ${selectedTask.taskCode}"
             holder.pickLocation.text = "Pickup location: ${selectedTask.pickLocation}"
             holder.dropLocation.text = "Drop location: ${selectedTask.dropLocation}"
             holder.typeOfGoods.text = "Goods: ${selectedTask.typeOfGoods}"
@@ -63,8 +65,8 @@ private val ctx:Context = context
                 holder.select_task_buttons.visibility = View.INVISIBLE
             }
 
-
     }
+
     fun convertTimestampToFormattedDate(timestamp: Long): String {
         val dateFormat = SimpleDateFormat("dd MMM HH:mm:ss", Locale.getDefault())
         val date = Date(timestamp)
@@ -78,6 +80,8 @@ private val ctx:Context = context
     fun setFilteredList(filteredList: List<SelectedTask>) {
         this.selectedTasksList = filteredList
         notifyDataSetChanged() // Notify the adapter that the data has changed
+
+
     }
 
     class SelectedTaskViewHolder(itemView: View,activity: Activity,selectedTasksList: List<SelectedTask>,context: Context) : RecyclerView.ViewHolder(itemView) {
@@ -93,8 +97,69 @@ private val ctx:Context = context
         val  txt_times: TextView = itemView.findViewById(R.id.txt_time)
         val  select_task_buttons: TextView = itemView.findViewById(R.id.select_task_button)
 
-        init {
 
+        init {
+            itemView.findViewById<TextView>(R.id.txt_dropLocation).setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val selectedTask = selectedTasksList[position]
+                    val address =selectedTask.dropLocation.toString()
+                   val result = getAddressLatLng(context, address)
+
+                  if (result != null) {
+                       val (latitude, longitude) = result
+                      val sharedPref:SharedPreferences = context.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
+
+                        val intent:Intent = Intent(activity, MainActivity::class.java)
+                        //intent.putExtra("lat",latitude)
+                      //  intent.putExtra("long",longitude)
+                     //   intent.putExtra("organization",selectedTask.name)
+                      val editor = sharedPref.edit()
+                      editor.putString("lat", latitude.toString())
+                      editor.putString("long", longitude.toString())
+                      editor.putString("organization", "Organization: ${selectedTask.name} ##Drop")
+                      editor.apply()
+                        activity.startActivity(intent)
+
+                       // Toast.makeText(ctx,"Latitude: $latitude, Longitude: $longitude",Toast.LENGTH_LONG).show()
+
+                  } else {
+                        // Handle the case where the address could not be geocoded
+                  }
+
+                }
+            }
+
+            itemView.findViewById<TextView>(R.id.txt_pickLocation).setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val selectedTask = selectedTasksList[position]
+                    val address =selectedTask.pickLocation.toString()
+                    val result = getAddressLatLng(context, address)
+
+                    if (result != null) {
+                        val (latitude, longitude) = result
+                        val sharedPref:SharedPreferences = context.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
+
+                        val intent:Intent = Intent(activity, MainActivity::class.java)
+                        //intent.putExtra("lat",latitude)
+                        //  intent.putExtra("long",longitude)
+                        //   intent.putExtra("organization",selectedTask.name)
+                        val editor = sharedPref.edit()
+                        editor.putString("lat", latitude.toString())
+                        editor.putString("long", longitude.toString())
+                        editor.putString("organization", "Organization: ${selectedTask.name} ##Pick up")
+                        editor.apply()
+                        activity.startActivity(intent)
+
+                        // Toast.makeText(ctx,"Latitude: $latitude, Longitude: $longitude",Toast.LENGTH_LONG).show()
+
+                    } else {
+                        // Handle the case where the address could not be geocoded
+                    }
+
+                }
+            }
             itemView.findViewById<TextView>(R.id.select_task_button).setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -120,6 +185,43 @@ private val ctx:Context = context
                     activity.finish()
                 }
             }
+
+                itemView.findViewById<CircleImageView>(R.id.employeeImageView).setOnClickListener {
+                    val positions = adapterPosition
+                    if (positions != RecyclerView.NO_POSITION) {
+                        val selectedTasks = selectedTasksList[positions]
+                   if(selectedTasks.UID != FirebaseAuth.getInstance().uid){
+                       val sharedPref: SharedPreferences =
+                           activity.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
+                       val editor = sharedPref.edit()
+                       editor.putString("key", selectedTasks.employeePicture)
+                       editor.apply()
+                       val intent = Intent(activity, ChatAct::class.java)
+                       intent.putExtra("fullName", "${selectedTasks.employeeName} ${selectedTasks.employeeSurname}")
+                       // intent.putExtra("pictureUrl", user.pictureUrl)
+                       intent.putExtra("id",selectedTasks.UID )
+                       activity.startActivity(intent)
+                   }else{
+                       Toast.makeText(context,"You cannot chat to yourself!!!",Toast.LENGTH_SHORT).show()
+                   }
+
+                }
+            }
+
+        }
+        fun getAddressLatLng(context: Context, address: String): Pair<Double, Double>? {
+            val geocoder = Geocoder(context)
+            try {
+                val addresses: List<Address> = geocoder.getFromLocationName(address, 1)!!
+                if (addresses.isNotEmpty()) {
+                    val latitude = addresses[0].latitude
+                    val longitude = addresses[0].longitude
+                    return Pair(latitude, longitude)
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            return null
         }
     }
 }

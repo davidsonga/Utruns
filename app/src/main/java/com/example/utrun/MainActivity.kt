@@ -1,20 +1,22 @@
 package com.example.utrun
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.Spinner
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.utrun.Activity.Rate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.utrun.Activity.SelectCar
+import com.example.utrun.Fragment.Home.Companion.LOCATION_PERMISSION_REQUEST_CODE
 import com.example.utrun.Network.LoginProgress
 import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.AppStateService
@@ -27,9 +29,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
-import com.pubnub.api.PNConfiguration
-import com.pubnub.api.PubNub
-import java.util.Arrays
 
 
 class MainActivity   :AppCompatActivity()  {
@@ -45,6 +44,7 @@ private var selectedUserRole: String = ""
     private lateinit var ln:LinearLayout
     private lateinit var rl:RelativeLayout
     private lateinit var btnInternetRefresh:Button
+    private var locationManager: LocationManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +52,26 @@ private var selectedUserRole: String = ""
 
         FirebaseApp.initializeApp(this)
 
-
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            // Location permissions have already been granted, you can proceed with location-related functionality.
+        }
 
          ln = findViewById<LinearLayout>(R.id.ln)
           rl = findViewById<RelativeLayout>(R.id.rl)
@@ -85,35 +104,18 @@ private var selectedUserRole: String = ""
 
 
         //getting selected role from spinner
-        val spinner = findViewById<Spinner>(R.id.spinnerUserRole)
-        spinner.adapter = adapter
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                selectedUserRole = userRoles[position]
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Handle when nothing is selected (optional)
-            }
 
 
-        }
+
+
 
         // Inside your btn_logIn.setOnClickListener()
         btn_logIn.setOnClickListener() {
 
-            isTrue = !selectedUserRole.equals("Select role") && !emailEt.text.isEmpty()
+            isTrue =!emailEt.text.isEmpty()
                     && !passwordEt.text.isEmpty() && passwordEt.text.length >= 6 // Changed to >= 6 for a minimum length of 6 characters
 
-            if (selectedUserRole.equals("Select role") || selectedUserRole.isEmpty()) {
-                Toast.makeText(this, "Please select a role", Toast.LENGTH_LONG).show()
-            }
+
 
             if (emailEt.text.isEmpty()) {
                 emailEt.setError("Email field cannot be empty!!!")
@@ -146,6 +148,7 @@ private var selectedUserRole: String = ""
 
     override fun onStart() {
         super.onStart()
+        locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val con: isDeviceConnectToInternet = isDeviceConnectToInternet()
         val mAuth = FirebaseAuth.getInstance().currentUser
         ln = findViewById<LinearLayout>(R.id.ln)
@@ -154,8 +157,11 @@ private var selectedUserRole: String = ""
         ln.visibility=View.GONE
         if(con.isInternetConnected(this)){
             if(mAuth != null){
-                appLifecycleCallback = (application as MyApp).appLifecycleCallback
-                decisionMking()
+
+                    appLifecycleCallback = (application as MyApp).appLifecycleCallback
+                    decisionMking()
+
+
             }else{
                 ln.visibility=View.VISIBLE
             }
@@ -165,6 +171,13 @@ private var selectedUserRole: String = ""
     }
 
     }
+
+
+
+
+
+
+
 
     //do not remove/modify this please
     override fun onDestroy() {
@@ -215,7 +228,20 @@ private var selectedUserRole: String = ""
     }
 
 
+    private fun requestLocationPermission():Boolean {
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
 
+        } else {
+            // Request permissions if not granted
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        }
+        return true
+    }
 
 
 

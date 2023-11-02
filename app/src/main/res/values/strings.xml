@@ -18,4 +18,13 @@
     <string name="offers">Offers</string>
     <string name="inbox">Inbox</string>
     <string name="outgoing">OutGoing</string>
+    <string name="GoogleMapsApiKey">AIzaSyA5qBmt7CN2feoI2QGucCgFPDNNrf4ZlNM</string>
+
+    <string name="profile_picture">Profile Picture</string>
+    <string name="change_picture">Change Picture</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_surname">Surname</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
+    <string name="save_changes">Save Changes</string>
 </resources>
