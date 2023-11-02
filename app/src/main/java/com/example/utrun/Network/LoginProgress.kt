@@ -12,6 +12,7 @@ import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.MyApp
 
 import com.example.utrun.Activity.UploadUserImageView
+import com.example.utrun.util.cuurentLoaction
 import com.example.utrun.util.intents
 import com.example.utrun.util.progressDialog
 import com.google.firebase.auth.FirebaseAuth
@@ -109,24 +110,19 @@ class LoginProgress {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for(vehicleSnapshot in snapshot.children){
                     val vehicleKey = vehicleSnapshot.key
-                    val isAvailable:Boolean = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java) == true
+                    val isAvailable = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java)
                     val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
-                    if(!isAvailable && employeeUID == FirebaseAuth.getInstance().uid){
+                    if(isAvailable ==false && employeeUID == FirebaseAuth.getInstance().uid){
 
-                        userHasCar=true
+                        val  intent: Intent = Intent(activity, HomePage::class.java)
+                        activity.startActivity(intent)
+                        userHasCar =true
+
                     }
 
 
                 }
-                if(userHasCar){
-                    var  intent: Intent = Intent(activity, HomePage::class.java)
-                    activity.startActivity(intent)
 
-
-                }else{
-                    var  intent: Intent = Intent(activity, SelectCar::class.java)
-                    activity.startActivity(intent)
-                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -134,6 +130,12 @@ class LoginProgress {
             }
 
         })
+        if(!userHasCar){
+
+            val  intent: Intent = Intent(activity, SelectCar::class.java)
+            activity.startActivity(intent)
+
+        }
     }
 
 

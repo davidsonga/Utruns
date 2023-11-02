@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
@@ -22,6 +24,9 @@ import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.AppStateService
 import com.example.utrun.Service.MyApp
 import com.example.utrun.Service.isDeviceConnectToInternet
+import com.example.utrun.util.cuurentLoaction
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -31,19 +36,19 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
 
 
-class MainActivity   :AppCompatActivity()  {
-private var selectedUserRole: String = ""
-    private lateinit var emailEt:EditText
-    private lateinit var passwordEt:EditText
-    private lateinit var btn_logIn:Button
-    private var isTrue:Boolean =false
-    private var objLogin:LoginProgress = LoginProgress()
+class MainActivity   :AppCompatActivity() {
+    private var selectedUserRole: String = ""
+    private lateinit var emailEt: EditText
+    private lateinit var passwordEt: EditText
+    private lateinit var btn_logIn: Button
+    private var isTrue: Boolean = false
+    private var objLogin: LoginProgress = LoginProgress()
     private lateinit var auth: FirebaseAuth
     private lateinit var appLifecycleCallback: AppLifecycleCallback
-    private var refreshedToken:String =""
-    private lateinit var ln:LinearLayout
-    private lateinit var rl:RelativeLayout
-    private lateinit var btnInternetRefresh:Button
+    private var refreshedToken: String = ""
+    private lateinit var ln: LinearLayout
+    private lateinit var rl: RelativeLayout
+    private lateinit var btnInternetRefresh: Button
     private var locationManager: LocationManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,17 +78,17 @@ private var selectedUserRole: String = ""
             // Location permissions have already been granted, you can proceed with location-related functionality.
         }
 
-         ln = findViewById<LinearLayout>(R.id.ln)
-          rl = findViewById<RelativeLayout>(R.id.rl)
+        ln = findViewById<LinearLayout>(R.id.ln)
+        rl = findViewById<RelativeLayout>(R.id.rl)
         //declaring obj variable
         emailEt = findViewById(R.id.emailEt)
         passwordEt = findViewById(R.id.passwordEt)
         btn_logIn = findViewById(R.id.btn_logIn)
         //calling the life cycle of the app
 
-        btnInternetRefresh =findViewById(R.id.btnInternetRefresh)
-        btnInternetRefresh.setOnClickListener(){
-         rl.visibility= View.GONE;
+        btnInternetRefresh = findViewById(R.id.btnInternetRefresh)
+        btnInternetRefresh.setOnClickListener() {
+            rl.visibility = View.GONE;
             onStart()
         }
         FirebaseMessaging.getInstance().token
@@ -100,21 +105,14 @@ private var selectedUserRole: String = ""
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
 
-
-
-
         //getting selected role from spinner
-
-
-
 
 
         // Inside your btn_logIn.setOnClickListener()
         btn_logIn.setOnClickListener() {
 
-            isTrue =!emailEt.text.isEmpty()
+            isTrue = !emailEt.text.isEmpty()
                     && !passwordEt.text.isEmpty() && passwordEt.text.length >= 6 // Changed to >= 6 for a minimum length of 6 characters
-
 
 
             if (emailEt.text.isEmpty()) {
@@ -131,12 +129,14 @@ private var selectedUserRole: String = ""
 
             if (isTrue) {
 
-                 //sending users details to the database to checkup
-                objLogin.isLoginUser(this,emailEt.text.toString(),passwordEt.text.toString(),selectedUserRole,refreshedToken)
-
-
-
-
+                //sending users details to the database to checkup
+                objLogin.isLoginUser(
+                    this,
+                    emailEt.text.toString(),
+                    passwordEt.text.toString(),
+                    selectedUserRole,
+                    refreshedToken
+                )
 
 
             }
@@ -148,35 +148,30 @@ private var selectedUserRole: String = ""
 
     override fun onStart() {
         super.onStart()
-        locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
         val con: isDeviceConnectToInternet = isDeviceConnectToInternet()
         val mAuth = FirebaseAuth.getInstance().currentUser
         ln = findViewById<LinearLayout>(R.id.ln)
         rl = findViewById<RelativeLayout>(R.id.rl)
 
-        ln.visibility=View.GONE
-        if(con.isInternetConnected(this)){
-            if(mAuth != null){
+        ln.visibility = View.GONE
+        if (con.isInternetConnected(this)) {
+            if (mAuth != null) {
+                val obj : cuurentLoaction = cuurentLoaction()
+                obj.setUserCurrentLocation(this)
+                appLifecycleCallback = (application as MyApp).appLifecycleCallback
+                decisionMking()
 
-                    appLifecycleCallback = (application as MyApp).appLifecycleCallback
-                    decisionMking()
 
-
-            }else{
-                ln.visibility=View.VISIBLE
+            } else {
+                ln.visibility = View.VISIBLE
             }
-        }else{
+        } else {
             rl.visibility = View.VISIBLE
-            btnInternetRefresh.visibility= View.VISIBLE
-    }
+            btnInternetRefresh.visibility = View.VISIBLE
+        }
 
     }
-
-
-
-
-
-
 
 
     //do not remove/modify this please
@@ -191,58 +186,61 @@ private var selectedUserRole: String = ""
         // App is in the foreground, show a toast
 
 
-
     }
 
-    private fun decisionMking(){
-        var userHasCar:Boolean = false;
-        FirebaseDatabase.getInstance().reference.child("vehicles").addValueEventListener(object :ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-             for(vehicleSnapshot in snapshot.children){
-                 val vehicleKey = vehicleSnapshot.key
-                 val isAvailable:Boolean = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java) == true
-                 val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
-                 if(!isAvailable && employeeUID == FirebaseAuth.getInstance().uid){
+    private fun decisionMking() {
+        var userHasCar: Boolean = false;
+        FirebaseDatabase.getInstance().reference.child("vehicles")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (vehicleSnapshot in snapshot.children) {
+                        val vehicleKey = vehicleSnapshot.key
+                        val isAvailable: Boolean = vehicleSnapshot.child("isAvailable")
+                            .getValue(Boolean::class.java) == true
+                        val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
+                        if (!isAvailable && employeeUID == FirebaseAuth.getInstance().uid) {
+                            val intent: Intent = Intent(this@MainActivity, HomePage::class.java)
+                            startActivity(intent)
 
-                     userHasCar=true
-                 }
-
-
-             }
-                if(userHasCar){
-                    var  intent:Intent= Intent(this@MainActivity, HomePage::class.java)
-                    startActivity(intent)
+                            userHasCar = true
+                        }
 
 
-                }else{
-                    var  intent:Intent= Intent(this@MainActivity, SelectCar::class.java)
-                    startActivity(intent)
+                    }
+                    if (!userHasCar) {
+
+                        val intent: Intent = Intent(this@MainActivity, SelectCar::class.java)
+                        startActivity(intent)
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
 
-        })
+            })
     }
 
 
-    private fun requestLocationPermission():Boolean {
+    private fun requestLocationPermission(): Boolean {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED) {
+            == PackageManager.PERMISSION_GRANTED
+        ) {
 
         } else {
             // Request permissions if not granted
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
         }
         return true
     }
-
 
 
 

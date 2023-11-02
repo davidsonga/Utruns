@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utrun.R
 import com.example.utrun.models.Locations
+import com.example.utrun.util.cuurentLoaction
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -158,51 +159,37 @@ class Home : Fragment(), OnMapReadyCallback {
                         val picture= locationSnapshop.child("Picture").getValue(String::class.java)
                         val fullName= locationSnapshop.child("fullName").getValue(String::class.java)
                         val login=  FirebaseDatabase.getInstance().reference.child("login")
-                        login.addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                //  val pictures = snapshot.child("email").child(FirebaseAuth.getInstance().uid.toString()).child("Picture").getValue(String::class.java)
 
-
-
-
-                            }
-
-
-                            override fun onCancelled(error: DatabaseError) {
-                                TODO("Not yet implemented")
-                            }
-
-                        })
 
                         val add = Locations(lat,long,fullName,picture,uid)
                         array.add(add)
                     }
 // Retrieve the location and organization information from the intent
                     //val latitude = requireActivity().intent.getDoubleExtra("lat", 0.0)
-                 //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
-                   // val companyName = requireActivity().intent.getStringExtra("organization")
+                    //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
+                    // val companyName = requireActivity().intent.getStringExtra("organization")
                     val sharedPref: SharedPreferences =requireContext().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
 
                     val companyName = sharedPref.getString("organization", null)
                     var latitude:Double=0.0
                     var longitude:Double=0.0
                     if(companyName != null){
-                         latitude= sharedPref.getString("lat", null).toString().toDouble()
-                         longitude = sharedPref.getString("long", null).toString().toDouble()
+                        latitude= sharedPref.getString("lat", null).toString().toDouble()
+                        longitude = sharedPref.getString("long", null).toString().toDouble()
                     }
 
 
                     // Ensure that the map is ready and there's valid location data
-                   if (googleMap != null && latitude != 0.0 && longitude != 0.0) {
-                       setLocationOnMap(LatLng(latitude, longitude), companyName)
-                       val editor = sharedPref.edit()
+                    if (googleMap != null && latitude != 0.0 && longitude != 0.0) {
+                        setLocationOnMap(LatLng(latitude, longitude), companyName)
+                        val editor = sharedPref.edit()
 
-                       editor.remove("lat")
-                       editor.remove("long")
-                       editor.remove("organization")
+                        editor.remove("lat")
+                        editor.remove("long")
+                        editor.remove("organization")
 
-                       editor.apply()
-                   }else{
+                        editor.apply()
+                    }else{
                         for (location in array) {
                             getLocation(location.latitude!!,location.longitude!!,decodeStringImage(location.picture!!),location.fullName!!,location.UID!!)
 
@@ -265,17 +252,17 @@ class Home : Fragment(), OnMapReadyCallback {
                 myLongitude = location.longitude
 
 
-         if(uid == FirebaseAuth.getInstance().uid &&picture !=null){
-             userLocation = LatLng(myLatitude, myLongitude)
-             markerOptions = MarkerOptions()
-                 .position(userLocation)
-                 .title("Name: ${fullname}")
-         }else{
-             userLocation = LatLng(lat, lon)
-             markerOptions = MarkerOptions()
-                 .position(userLocation)
-                 .title("Name: ${fullname}")
-         }
+                if(uid == FirebaseAuth.getInstance().uid &&picture !=null){
+                    userLocation = LatLng(myLatitude, myLongitude)
+                    markerOptions = MarkerOptions()
+                        .position(userLocation)
+                        .title("Name: ${fullname}")
+                }else{
+                    userLocation = LatLng(lat, lon)
+                    markerOptions = MarkerOptions()
+                        .position(userLocation)
+                        .title("Name: ${fullname}")
+                }
 
 
                 if (picture != null) {
@@ -329,7 +316,7 @@ class Home : Fragment(), OnMapReadyCallback {
 
     override fun onStart() {
         super.onStart()
-        setUserCurrentLocation( );
+
     }
 
     private fun setLocationOnMap(location: LatLng, name: String?) {

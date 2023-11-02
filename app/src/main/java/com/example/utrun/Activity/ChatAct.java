@@ -139,16 +139,6 @@ public class ChatAct extends AppCompatActivity  {
 
 
 
-        pnConfiguration = new PNConfiguration( );
-        pnConfiguration.setPublishKey("pub-c-76f8cb3e-6e56-48d9-a735-a8f299d8cd42");
-        pnConfiguration.setSubscribeKey("sub-c-f74d993e-7452-4ded-aef9-755a519c128f");
-        PubNub pubnub = new PubNub(pnConfiguration);
-
-// Subscribe to a channel
-        pubnub.subscribe()
-                .channels(Arrays.asList(recieverId))
-                .execute();
-
 
         /*profilePicture.setOnClickListener(new View.OnClickListener() {
             @Override

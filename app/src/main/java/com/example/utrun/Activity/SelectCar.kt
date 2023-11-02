@@ -1,6 +1,8 @@
 package com.example.utrun.Activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -9,8 +11,12 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.utrun.Fragment.Home
+import com.example.utrun.MainActivity
 import com.example.utrun.R
+import com.example.utrun.util.cuurentLoaction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -32,7 +38,26 @@ class SelectCar : AppCompatActivity() {
 
         val spinnerVehicles: Spinner = findViewById(R.id.spinner_vehicles)
         val continueBtn: Button = findViewById(R.id.continueBtn)
-
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                Home.LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            // Location permissions have already been granted, you can proceed with location-related functionality.
+        }
         fetchVehicleBrands { brandsList ->
             val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, brandsList)
             spinnerVehicles.adapter = adapter
@@ -79,6 +104,8 @@ class SelectCar : AppCompatActivity() {
                 Toast.makeText(this@SelectCar, "Failed to load vehicle brands", Toast.LENGTH_SHORT).show()
             }
         })
+
+
     }
 
     private fun checkVehicleAvailabilityAndReserve(selectedBrand: String) {
@@ -98,6 +125,8 @@ class SelectCar : AppCompatActivity() {
                             vehicleSnapshot.ref.child("isAvailable").setValue(false)
                             vehicleSnapshot.ref.child("key").setValue(FirebaseAuth.getInstance().uid)
 
+                            val intent:Intent = Intent(this@SelectCar,MainActivity::class.java)
+                            startActivity(intent)
 
 
 
@@ -113,5 +142,7 @@ class SelectCar : AppCompatActivity() {
                     Toast.makeText(this@SelectCar, "Failed to check vehicle availability", Toast.LENGTH_SHORT).show()
                 }
             })
+
+
     }
 }

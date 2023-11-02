@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Base64
 import android.widget.Toast
+import com.example.utrun.Activity.SelectCar
 import com.example.utrun.HomePage
 import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.MyApp
@@ -26,7 +27,7 @@ class Upload {
     private lateinit var appLifecycleCallback: AppLifecycleCallback
     fun uploadProfilePicture(activity: Activity, selectedImageUri: Uri, ) {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        var activity2: HomePage = HomePage()
+        var activity2: SelectCar = SelectCar()
         if (currentUser != null) {
             val uid = currentUser.uid
 
