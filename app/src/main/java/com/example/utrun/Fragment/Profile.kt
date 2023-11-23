@@ -158,7 +158,6 @@ class Profile : Fragment() {
     }
 
     private fun saveChanges() {
-
         val userId = auth.currentUser?.uid
         val updatedName = binding.editTextName.text.toString()
         val updatedSurname = binding.editTextSurname.text.toString()
@@ -184,49 +183,47 @@ class Profile : Fragment() {
         userId?.let {
             database.child("login").child("email").child(it).updateChildren(updates as Map<String, Any>)
                 .addOnCompleteListener { task ->
+                    if (!isAdded) return@addOnCompleteListener // Check if fragment is still added
+
                     if (task.isSuccessful) {
                         if (newPassword.isNotBlank()) {
                             updateUserPassword(currentPassword, newPassword)
                         } else {
-                            Toast.makeText(activity, "Profile updated!", Toast.LENGTH_SHORT).show()
+                            activity?.let { act ->
+                                Toast.makeText(act, "Profile updated!", Toast.LENGTH_SHORT).show()
+                            }
                             FirebaseDatabase.getInstance().reference.child("login").child("email")
                                 .addValueEventListener(object : ValueEventListener {
                                     override fun onDataChange(snapshot: DataSnapshot) {
+                                        if (!isAdded) return // Check if fragment is still added
+
                                         for (loginSnapshot in snapshot.children) {
                                             val UID = loginSnapshot.key
-                                            val picture =
-                                                loginSnapshot.child("Picture").getValue(String::class.java)
-                                            val name =
-                                                loginSnapshot.child("name").getValue(String::class.java)
-                                            val surname =
-                                                loginSnapshot.child("surname").getValue(String::class.java)
+                                            val picture = loginSnapshot.child("Picture").getValue(String::class.java)
+                                            val name = loginSnapshot.child("name").getValue(String::class.java)
+                                            val surname = loginSnapshot.child("surname").getValue(String::class.java)
                                             val fullName = "$name $surname"
                                             if (UID == FirebaseAuth.getInstance().uid) {
-                                                val setLocation =
-                                                    FirebaseDatabase.getInstance().reference.child("currentLocation")
-                                                        .child(FirebaseAuth.getInstance().uid.toString())
-
-
+                                                val setLocation = FirebaseDatabase.getInstance().reference.child("currentLocation")
+                                                    .child(FirebaseAuth.getInstance().uid.toString())
 
                                                 val nameSurnameMap = hashMapOf(
                                                     "fullName" to fullName,
                                                     "Picture" to picture,
                                                     "latitude" to myLatitude,
-                                                    "longitude" to myLongitude)
+                                                    "longitude" to myLongitude
+                                                )
 
-                                                        setLocation.setValue(nameSurnameMap)
-
+                                                setLocation.setValue(nameSurnameMap)
                                                     .addOnSuccessListener {
-                                                        val intent:Intent = Intent(requireActivity(),MainActivity::class.java)
-                                                        startActivity(intent)
+                                                        activity?.let { act ->
+                                                            val intent = Intent(act, MainActivity::class.java)
+                                                            startActivity(intent)
+                                                        }
                                                     }
                                             }
                                         }
-
                                     }
-
-
-
 
                                     override fun onCancelled(error: DatabaseError) {
                                         // Handle onCancelled event
@@ -234,7 +231,9 @@ class Profile : Fragment() {
                                 })
                         }
                     } else {
-                        Toast.makeText(activity, "Error updating profile.", Toast.LENGTH_SHORT).show()
+                        activity?.let { act ->
+                            Toast.makeText(act, "Error updating profile.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
         }
