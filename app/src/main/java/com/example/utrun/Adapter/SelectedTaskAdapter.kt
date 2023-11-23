@@ -2,6 +2,7 @@ package com.example.utrun.Adapter
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -21,6 +22,7 @@ import com.example.utrun.Activity.task_details
 import com.example.utrun.MainActivity
 import com.example.utrun.R
 import com.example.utrun.models.SelectedTask
+import com.example.utrun.util.progressDialog
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.IOException
@@ -32,6 +34,7 @@ class SelectedTaskAdapter(private var selectedTasksList: List<SelectedTask> ,act
 
 private val act:Activity = activity
 private val ctx:Context = context
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedTaskViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.selected_task_card, parent, false)
         return SelectedTaskViewHolder(view,act,selectedTasksList,ctx)
@@ -96,10 +99,15 @@ private val ctx:Context = context
         val  numberPlate: TextView = itemView.findViewById(R.id.txt_numberPlate)
         val  txt_times: TextView = itemView.findViewById(R.id.txt_time)
         val  select_task_buttons: TextView = itemView.findViewById(R.id.select_task_button)
-
-
+        private lateinit var progressDialog: ProgressDialog
         init {
             itemView.findViewById<TextView>(R.id.txt_dropLocation).setOnClickListener {
+                progressDialog = ProgressDialog(activity)
+                progressDialog.setMessage("Please wait...") // Set a message to be displayed
+                progressDialog.setCancelable(false)
+                progressDialog.show()
+                itemView.findViewById<TextView>(R.id.txt_pickLocation).isEnabled = false
+                itemView.findViewById<TextView>(R.id.txt_dropLocation).isEnabled = false
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val selectedTask = selectedTasksList[position]
@@ -131,6 +139,12 @@ private val ctx:Context = context
             }
 
             itemView.findViewById<TextView>(R.id.txt_pickLocation).setOnClickListener {
+                progressDialog = ProgressDialog(activity)
+                progressDialog.setMessage("Please wait...") // Set a message to be displayed
+                progressDialog.setCancelable(false)
+                progressDialog.show()
+                itemView.findViewById<TextView>(R.id.txt_pickLocation).isEnabled = false
+                itemView.findViewById<TextView>(R.id.txt_dropLocation).isEnabled = false
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val selectedTask = selectedTasksList[position]

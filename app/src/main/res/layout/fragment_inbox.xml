@@ -9,16 +9,7 @@
     tools:context=".Fragment.InboxFragment"
     android:background="@color/transparent">
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:layout_margin="10dp"
-        app:itemIconTint="@color/black"
-        app:queryHint="Search here ..."
-        android:background="@drawable/search_view_bg"
-        app:iconifiedByDefault="false"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

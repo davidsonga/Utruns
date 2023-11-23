@@ -418,43 +418,6 @@ public class ChatAct extends AppCompatActivity  {
                 .setValue(messageModel);
 
 
-
-     /*   String user2FcmToken = "eBhXGSlCQROgxVqwcZDcOn:APA91bEJK3lOx3zAAMGlrMU2dOYQEqndhLgome7-kYCLMMNs71ogCgLBF0BojJGzTACXJO0Stui8oQLcxpQhtXDBBFTt_lumoXv8PMfrk1QvRAxlVlSg7TncWsF4OmnZ9J39ZokL-HKS"; // Replace with User 2's actual FCM token
-
-// Create an intent that will be triggered when the notification is tapped
-        Intent intent = new Intent(getApplicationContext(), HomePage.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
-
-// Build the notification
-       NotificationCompat.Builder mbuilder = new NotificationCompat.Builder(getApplicationContext(), "default")
-                .setSmallIcon(R.drawable.edit_profile)
-                .setContentTitle("New message from")
-                .setContentText(message)
-                .setAutoCancel(true) // Auto-cancel the notification when tapped
-                .setContentIntent(pendingIntent);
-
-// Get the NotificationManager
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-// Notify with a specific tag and ID
-        notificationManager.notify("YourNotificationTag", 0, mbuilder.build());*/
-
-      /*  NotificationCompat.Builder mbuilder = (NotificationCompat.Builder)
-                new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.edit_profile,10)
-
-                        .setContentTitle("New message from" )
-                        .setContentText(message);
-
-        NotificationManager notificationManager = (NotificationManager)
-                getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0,mbuilder.build());*/
-
-        // Notify the receiver via FCM
-        //   sendFCMNotification(message);
-
-        // Clear the input field
         binding.messageEd.setText("");
         binding.recycler.scrollToPosition(messageAdapter.getItemCount() - 1);
     }

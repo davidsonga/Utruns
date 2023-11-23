@@ -1,6 +1,9 @@
 package com.example.utrun.Adapter
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.utrun.Activity.SelectCar
 import com.example.utrun.Fragment.InboxFragment
 import com.example.utrun.R
 import com.example.utrun.models.Tasks
@@ -23,10 +27,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: InboxFragment) : RecyclerView.Adapter<TaskCardAdapter.TaskViewHolder>() {
+class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: InboxFragment,context:Context,act: Activity) : RecyclerView.Adapter<TaskCardAdapter.TaskViewHolder>() {
 
     private var selectedTask: Tasks? = null
-
+    private var cnt:Context = context
+    private var activity:Activity =act
     interface TaskClickListener {
         fun onTaskSelected(task: Tasks)
     }
@@ -93,23 +98,18 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
                     val currentTimeMillis = System.currentTimeMillis()
                     // Check if the user is logged in
                     if (currentUserUid != null) {
+                        var vehicleFound = false
                         // Update the employeeUid in the selected task
-
                         FirebaseDatabase.getInstance().reference.child("vehicles")
                             .addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(snapshot: DataSnapshot) {
                                     for (taskSnapshot in snapshot.children) {
-                                        val Id = taskSnapshot.key
-                                        //val vehicleSnapshot = snapshot.children.first()
+                                        val id = taskSnapshot.key ?: continue
+                                        val keys = taskSnapshot.child("key").getValue(String::class.java) ?: ""
+                                        val numberPlate = taskSnapshot.child("numberPlate").getValue(String::class.java) ?: ""
 
-                                        val KEYS = taskSnapshot.child("key")
-                                            .getValue(String::class.java) ?: ""
-                                        val numberPlate = taskSnapshot.child("numberPlate")
-                                            .getValue(String::class.java) ?: ""
-
-                                        if (KEYS == currentUserUid) {
-
-                                            // Update the tasks in the Firebase Realtime Database
+                                        if (keys == currentUserUid) {
+                                            vehicleFound = true
                                             val taskReference =
                                                 FirebaseDatabase.getInstance().reference.child("tasks")
                                                     .child(selectedTask.uniqueID.toString())
@@ -117,33 +117,35 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
                                                 .setValue(currentUserUid)
                                             taskReference.child("assignedTimestamp")
                                                 .setValue(currentTimeMillis)
-                                            taskReference.child("vehicleId").setValue(Id)
-
-
+                                            taskReference.child("vehicleId").setValue(id)
+                                            break // Exit the loop as vehicle is found
                                         }
+                                    }
+                                    if (!vehicleFound) {
+                                        Toast.makeText(cnt, "You need to select a vehicle before selecting a task", Toast.LENGTH_SHORT).show()
+                                        val intent:Intent = Intent(activity,SelectCar::class.java)
+                                        activity.startActivity(intent)
+                                    }else{
+
+
+
+
+                                        // listener.onTaskSelected(selectedTask)
                                     }
                                 }
 
                                 override fun onCancelled(error: DatabaseError) {
-                                    TODO("Not yet implemented")
+                                 //   Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
                                 }
                             })
-
-
-
-
-                        // remove this later on
                         val mutableTasksList: MutableList<Tasks> = tasksList.toMutableList()
+                        mutableTasksList.removeAt(position)
 
 
-                       mutableTasksList.removeAt(position)
-
-
-                       tasksList = mutableTasksList
+                        tasksList = mutableTasksList
 
 
                         notifyItemRemoved(position)
-                        // listener.onTaskSelected(selectedTask)
 
                     }
                 }

@@ -3,6 +3,7 @@ package com.example.utrun.Fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -20,12 +21,16 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utrun.R
+import com.example.utrun.Service.AppLifecycleCallback
+import com.example.utrun.Service.AppStateService
 import com.example.utrun.models.Locations
 import com.example.utrun.util.cuurentLoaction
+import com.example.utrun.util.progressDialog
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -49,6 +54,8 @@ class Home : Fragment(), OnMapReadyCallback {
     private var myLongitude: Double = 0.0
     private var array : MutableList<Locations> = mutableListOf()
     private var string:String =""
+    private val obj: progressDialog = progressDialog()
+    private lateinit var appLifecycleCallback: AppLifecycleCallback
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,45 +73,7 @@ class Home : Fragment(), OnMapReadyCallback {
 
         return view
     }
-    @SuppressLint("MissingPermission")
-    fun setUserCurrentLocation( ){
-        val location = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        if (location != null) {
-            myLatitude = location.latitude
-            myLongitude = location.longitude
 
-        }
-        FirebaseDatabase.getInstance().reference.child("login").child("email").addValueEventListener(object:
-            ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for(loginSnapshot in snapshot.children){
-                    val UID = loginSnapshot.key
-                    val picture = loginSnapshot.child("Picture").getValue(String::class.java)
-                    val name = loginSnapshot.child("name").getValue(String::class.java)
-                    val surname = loginSnapshot.child("surname").getValue(String::class.java)
-                    val fullName = "${name} ${surname}"
-                    if(UID == FirebaseAuth.getInstance().uid){
-
-                        val setLocation= FirebaseDatabase.getInstance().reference.child("currentLocation").child(FirebaseAuth.getInstance().uid.toString())
-
-                        setLocation.child("latitude").setValue(myLatitude)
-                        setLocation.child("longitude").setValue(myLongitude)
-                        setLocation.child("Picture").setValue(picture)
-                        setLocation.child("fullName").setValue(fullName)
-                    }
-
-                }
-
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-
-    }
 
 
 
@@ -112,8 +81,13 @@ class Home : Fragment(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+
         requestLocationPermission()
+
+
+
     }
+
 
     override fun onPause() {
         super.onPause()
@@ -124,11 +98,17 @@ class Home : Fragment(), OnMapReadyCallback {
         super.onDestroy()
         mapView.onDestroy()
 
+
+
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     override fun onMapReady(map: GoogleMap) {
@@ -136,6 +116,7 @@ class Home : Fragment(), OnMapReadyCallback {
         googleMap!!.uiSettings.isZoomControlsEnabled=true
         googleMap!!.uiSettings.isZoomGesturesEnabled=true
         googleMap!!.uiSettings.isScrollGesturesEnabled=true
+        obj.isProgressDialogEnable(requireActivity(),"Please wait...")
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED) {
             googleMap!!.isMyLocationEnabled = true
@@ -146,66 +127,82 @@ class Home : Fragment(), OnMapReadyCallback {
 
         // Enable user location tracking
         if (checkLocationPermission()) {
+            if (isAdded && context != null) {
+
 
             val getLocation = FirebaseDatabase.getInstance().reference.child("currentLocation")
 
-            getLocation.addValueEventListener(object : ValueEventListener {
-                @SuppressLint("CommitPrefEdits")
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for(locationSnapshop in snapshot.children){
-                        val uid = locationSnapshop.key
-                        val lat = locationSnapshop.child("latitude").getValue(Double::class.java)
-                        val long = locationSnapshop.child("longitude").getValue(Double::class.java)
-                        val picture= locationSnapshop.child("Picture").getValue(String::class.java)
-                        val fullName= locationSnapshop.child("fullName").getValue(String::class.java)
-                        val login=  FirebaseDatabase.getInstance().reference.child("login")
+            var num:Int =0
+
+                getLocation.addValueEventListener(object : ValueEventListener {
+                    @SuppressLint("CommitPrefEdits")
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for(locationSnapshop in snapshot.children){
+                            val uid = locationSnapshop.key.toString()
+                            val lat = locationSnapshop.child("latitude").getValue(Double::class.java)
+                            val long = locationSnapshop.child("longitude").getValue(Double::class.java)
+                            var picture= locationSnapshop.child("Picture").getValue(String::class.java)?:""
+                            val fullName= locationSnapshop.child("fullName").getValue(String::class.java)
 
 
-                        val add = Locations(lat,long,fullName,picture,uid)
-                        array.add(add)
-                    }
-// Retrieve the location and organization information from the intent
-                    //val latitude = requireActivity().intent.getDoubleExtra("lat", 0.0)
-                    //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
-                    // val companyName = requireActivity().intent.getStringExtra("organization")
-                    val sharedPref: SharedPreferences =requireContext().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
-
-                    val companyName = sharedPref.getString("organization", null)
-                    var latitude:Double=0.0
-                    var longitude:Double=0.0
-                    if(companyName != null){
-                        latitude= sharedPref.getString("lat", null).toString().toDouble()
-                        longitude = sharedPref.getString("long", null).toString().toDouble()
-                    }
-
-
-                    // Ensure that the map is ready and there's valid location data
-                    if (googleMap != null && latitude != 0.0 && longitude != 0.0) {
-                        setLocationOnMap(LatLng(latitude, longitude), companyName)
-                        val editor = sharedPref.edit()
-
-                        editor.remove("lat")
-                        editor.remove("long")
-                        editor.remove("organization")
-
-                        editor.apply()
-                    }else{
-                        for (location in array) {
-                            getLocation(location.latitude!!,location.longitude!!,decodeStringImage(location.picture!!),location.fullName!!,location.UID!!)
+                            val add = Locations(lat,long,fullName,picture,uid)
+                            num++
+                            array.add(add)
 
                         }
+// Retrieve the location and organization information from the intent
+                        //val latitude = requireActivity().intent.getDoubleExtra("lat", 0.0)
+                        //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
+                        // val companyName = requireActivity().intent.getStringExtra("organization")
+                        val sharedPref: SharedPreferences =requireContext().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
+
+                        val companyName = sharedPref.getString("organization", null)
+                        var latitude:Double=0.0
+                        var longitude:Double=0.0
+                        if(companyName != null){
+                            latitude= sharedPref.getString("lat", null).toString().toDouble()
+                            longitude = sharedPref.getString("long", null).toString().toDouble()
+                        }
+
+
+                        // Ensure that the map is ready and there's valid location data
+                        if (googleMap != null && latitude != 0.0 && longitude != 0.0) {
+                            setLocationOnMap(LatLng(latitude, longitude), companyName)
+                            val editor = sharedPref.edit()
+
+                            editor.remove("lat")
+                            editor.remove("long")
+                            editor.remove("organization")
+
+                            editor.apply()
+                        }else{
+                            for (location in array) {
+                                if(!location.picture.equals("")  ){
+                                    getLocation(location.latitude!!,location.longitude!!,decodeStringImage(location.picture!!),location.fullName!!,location.UID!!)
+
+                                }
+
+                            }
+                            obj.isProgressDialogDisable()
+                        }
+
+
+
                     }
 
+                    override fun onCancelled(error: DatabaseError) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+
+            } else {
+                Toast.makeText(requireContext(),"Internet connection not stable",Toast.LENGTH_LONG).show()
+            }
 
 
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
-            })
-
+        }else{
+            Toast.makeText(requireContext(),"Error occur, Please restart the app",Toast.LENGTH_LONG).show()
         }
     }
 
@@ -244,38 +241,43 @@ class Home : Fragment(), OnMapReadyCallback {
 
     private fun getLocation(lat: Double, lon: Double, picture: Bitmap?, fullname:String,uid:String) {
         try {
-            val markerOptions:MarkerOptions
-            val userLocation:LatLng
-            val location = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            if (location != null) {
-                myLatitude = location.latitude
-                myLongitude = location.longitude
+
+            if (lat != 0.0 && lon != 0.0 && fullname.isNotEmpty() && !fullname.equals("") && uid.isNotEmpty()) {
+
+                val markerOptions:MarkerOptions
+                val userLocation:LatLng
+                val location = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if (location != null) {
+                    myLatitude = location.latitude
+                    myLongitude = location.longitude
 
 
-                if(uid == FirebaseAuth.getInstance().uid &&picture !=null){
-                    userLocation = LatLng(myLatitude, myLongitude)
-                    markerOptions = MarkerOptions()
-                        .position(userLocation)
-                        .title("Name: ${fullname}")
-                }else{
-                    userLocation = LatLng(lat, lon)
-                    markerOptions = MarkerOptions()
-                        .position(userLocation)
-                        .title("Name: ${fullname}")
+                    if(uid == FirebaseAuth.getInstance().uid &&picture !=null){
+                        userLocation = LatLng(myLatitude, myLongitude)
+                        markerOptions = MarkerOptions()
+                            .position(userLocation)
+                            .title("Name: ${fullname}")
+                    }else{
+                        userLocation = LatLng(lat, lon)
+                        markerOptions = MarkerOptions()
+                            .position(userLocation)
+                            .title("Name: ${fullname}")
+                    }
+
+
+                    if (picture != null) {
+                        // Create a circular and small version of the picture
+                        val circularIcon = createCircularIcon(picture, 100) // Adjust 50 to your desired size
+
+                        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(circularIcon))
+                    }
+
+                    googleMap?.addMarker(markerOptions)
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
+
                 }
-
-
-                if (picture != null) {
-                    // Create a circular and small version of the picture
-                    val circularIcon = createCircularIcon(picture, 100) // Adjust 50 to your desired size
-
-                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(circularIcon))
-                }
-
-                googleMap?.addMarker(markerOptions)
-                googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
-
             }
+
         } catch (e: SecurityException) {
             e.printStackTrace()
         }
@@ -316,6 +318,8 @@ class Home : Fragment(), OnMapReadyCallback {
 
     override fun onStart() {
         super.onStart()
+        val obj:cuurentLoaction = cuurentLoaction()
+        obj.setUserCurrentLocation(requireContext())
 
     }
 
@@ -326,8 +330,8 @@ class Home : Fragment(), OnMapReadyCallback {
 
         googleMap?.addMarker(markerOptions)
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+        obj.isProgressDialogDisable()
     }
-
 
 
 }

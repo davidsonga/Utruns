@@ -34,40 +34,51 @@
         android:layout_marginTop="10dp"
         android:textAlignment="center"/>
 
-    <ImageView
-        android:id="@+id/img_userProfileImage"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="212dp"
-        android:layout_marginTop="10dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/image_place_holder" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="OR"
-        style="@style/body_content"
-        android:layout_marginHorizontal="45dp"
-        android:textAlignment="center"/>
+        <ImageView
+            android:id="@+id/img_userProfileImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
+            android:layout_above="@+id/textView4"
+            android:src="@drawable/image_place_holder" />
 
-    <Button
-        android:id="@+id/btn_TakePhoto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Open Camera and take photo"
-        app:icon="@drawable/baseline_photo_camera_24"
-        android:background="@drawable/light_green_btn"
-        android:layout_marginTop="10dp"
-        android:layout_marginHorizontal="45dp"/>
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="OR"
+            style="@style/body_content"
+            android:layout_above="@+id/btn_TakePhoto"
+            android:layout_marginHorizontal="45dp"
+            android:textAlignment="center"/>
 
-    <Button
-        android:id="@+id/btn_finishOnboarding"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Finish Onboarding"
-        android:background="@drawable/green_btn"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="45dp"/>
+        <Button
+            android:id="@+id/btn_TakePhoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Camera and take photo"
+            app:icon="@drawable/baseline_photo_camera_24"
+            android:background="@drawable/light_green_btn"
+            android:layout_marginTop="10dp"
+            android:layout_above="@+id/btn_finishOnboarding"
+            android:layout_marginHorizontal="45dp"/>
+
+        <Button
+            android:id="@+id/btn_finishOnboarding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Finish Onboarding"
+            android:background="@drawable/green_btn"
+            android:layout_marginTop="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginHorizontal="45dp"/>
+    </RelativeLayout>
+
 
 </LinearLayout>

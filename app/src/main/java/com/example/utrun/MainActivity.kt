@@ -1,6 +1,7 @@
 package com.example.utrun
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +15,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -34,6 +36,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.messaging.FirebaseMessaging
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 class MainActivity   :AppCompatActivity() {
@@ -156,11 +161,16 @@ class MainActivity   :AppCompatActivity() {
 
         ln.visibility = View.GONE
         if (con.isInternetConnected(this)) {
+            setUserOnlineStatus("Online");
             if (mAuth != null) {
-                val obj : cuurentLoaction = cuurentLoaction()
-                obj.setUserCurrentLocation(this)
                 appLifecycleCallback = (application as MyApp).appLifecycleCallback
-                decisionMking()
+                val obj : cuurentLoaction = cuurentLoaction()
+               if( obj.setUserCurrentLocation(this) ==1){
+                   val intent: Intent = Intent(this@MainActivity, HomePage::class.java)
+                   startActivity(intent)
+               }
+
+
 
 
             } else {
@@ -179,68 +189,30 @@ class MainActivity   :AppCompatActivity() {
         super.onDestroy()
 
         if (!appLifecycleCallback.isAppInForeground()) {
+
             // Stop the AppStateService explicitly when the app is closed
-            val serviceIntent = Intent(this, AppStateService::class.java)
+            val serviceIntent = Intent(this@MainActivity, AppStateService::class.java)
             stopService(serviceIntent)
-        } //else {
-        // App is in the foreground, show a toast
 
-
-    }
-
-    private fun decisionMking() {
-        var userHasCar: Boolean = false;
-        FirebaseDatabase.getInstance().reference.child("vehicles")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (vehicleSnapshot in snapshot.children) {
-                        val vehicleKey = vehicleSnapshot.key
-                        val isAvailable: Boolean = vehicleSnapshot.child("isAvailable")
-                            .getValue(Boolean::class.java) == true
-                        val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
-                        if (!isAvailable && employeeUID == FirebaseAuth.getInstance().uid) {
-                            val intent: Intent = Intent(this@MainActivity, HomePage::class.java)
-                            startActivity(intent)
-
-                            userHasCar = true
-                        }
-
-
-                    }
-                    if (!userHasCar) {
-
-                        val intent: Intent = Intent(this@MainActivity, SelectCar::class.java)
-                        startActivity(intent)
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
-            })
-    }
-
-
-    private fun requestLocationPermission(): Boolean {
-        val permissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-
-        } else {
-            // Request permissions if not granted
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1
-            )
+      //  }else {
+         //   val serviceIntent = Intent(this, AppStateService::class.java)
+           // stopService(serviceIntent)
         }
-        return true
+
+
+
     }
+
+    @SuppressLint("SuspiciousIndentation")
+    private fun setUserOnlineStatus(status: String) {
+     val userRef = FirebaseDatabase.getInstance().reference.child("login").child("email").child(FirebaseAuth.getInstance().currentUser?.uid.toString())
+       userRef.child("state").setValue(status)
+        userRef.child("typing").setValue(false)
+    }
+
+
+
+
 
 
 

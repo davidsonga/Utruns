@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.utrun.Fragment.Home
+import com.example.utrun.Fragment.InboxFragment
 import com.example.utrun.MainActivity
 import com.example.utrun.R
 import com.example.utrun.util.cuurentLoaction
@@ -125,7 +126,7 @@ class SelectCar : AppCompatActivity() {
                             vehicleSnapshot.ref.child("isAvailable").setValue(false)
                             vehicleSnapshot.ref.child("key").setValue(FirebaseAuth.getInstance().uid)
 
-                            val intent:Intent = Intent(this@SelectCar,MainActivity::class.java)
+                            val intent:Intent = Intent(this@SelectCar,InboxFragment::class.java)
                             startActivity(intent)
 
 

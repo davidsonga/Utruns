@@ -10,11 +10,15 @@ import com.example.utrun.Activity.SelectCar
 import com.example.utrun.HomePage
 import com.example.utrun.Service.AppLifecycleCallback
 import com.example.utrun.Service.MyApp
+import com.example.utrun.util.cuurentLoaction
 
 import com.example.utrun.util.intents
 import com.example.utrun.util.progressDialog
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -27,7 +31,9 @@ class Upload {
     private lateinit var appLifecycleCallback: AppLifecycleCallback
     fun uploadProfilePicture(activity: Activity, selectedImageUri: Uri, ) {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        var activity2: SelectCar = SelectCar()
+        var activity2: HomePage = HomePage()
+        val obj : cuurentLoaction = cuurentLoaction()
+
         if (currentUser != null) {
             val uid = currentUser.uid
 
@@ -54,8 +60,41 @@ class Upload {
                                 appLifecycleCallback = (activity.application as MyApp).appLifecycleCallback
                                 // Display success message if the update was successful
                                 Toast.makeText(activity, "Profile picture uploaded successfully", Toast.LENGTH_LONG).show()
-                               objProgress.isProgressDialogDisable()
-                                objIntent.intent(activity, activity2 )
+
+                                 val uploadImage=   FirebaseDatabase.getInstance().reference.child("login").child("email")
+                                uploadImage  .addValueEventListener(object : ValueEventListener {
+                                            override fun onDataChange(snapshot: DataSnapshot) {
+                                                for (loginSnapshot in snapshot.children) {
+                                                    val UID = loginSnapshot.key
+                                                    val picture =
+                                                        loginSnapshot.child("Picture").getValue(String::class.java)
+                                                    val name =
+                                                        loginSnapshot.child("name").getValue(String::class.java)
+                                                    val surname =
+                                                        loginSnapshot.child("surname").getValue(String::class.java)
+                                                    val fullName = "$name $surname"
+                                                    if (UID == FirebaseAuth.getInstance().uid) {
+
+                                                                if(obj.setUserCurrentLocation(activity)==1){
+                                                                    objProgress.isProgressDialogDisable()
+                                                                    objIntent.intent(activity, activity2 )
+                                                                }
+
+
+                                                    }
+
+
+                                                }
+
+                                            }
+
+
+                                            override fun onCancelled(error: DatabaseError) {
+                                                // Handle onCancelled event
+                                            }
+                                        })
+
+
                                 // Finish the onboarding process or navigate to the next activity
                                 // Add your navigation logic here
                             } else {

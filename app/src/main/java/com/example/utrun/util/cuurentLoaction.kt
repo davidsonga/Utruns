@@ -15,17 +15,17 @@ import com.google.firebase.database.ValueEventListener
 
 class cuurentLoaction {
 
-    fun setUserCurrentLocation(context:Context) {
+    fun setUserCurrentLocation(context:Context):Int {
         val fusedLocationClient: FusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(context) // Replace 'context' with the appropriate context
-
+        var num:Int =1
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Request location permissions
-            return
+             return num
         }
 
         fusedLocationClient.lastLocation
@@ -50,11 +50,18 @@ class cuurentLoaction {
                                         val setLocation =
                                             FirebaseDatabase.getInstance().reference.child("currentLocation")
                                                 .child(FirebaseAuth.getInstance().uid.toString())
+                                        val nameSurnameMap = hashMapOf(
+                                            "fullName" to fullName,
+                                            "Picture" to picture,
+                                            "latitude" to myLatitude,
+                                            "longitude" to myLongitude)
+                                        //setLocation.child("latitude").setValue(myLatitude)
+                                        //setLocation.child("longitude").setValue(myLongitude)
+                                        setLocation.setValue(nameSurnameMap)
 
-                                        setLocation.child("latitude").setValue(myLatitude)
-                                        setLocation.child("longitude").setValue(myLongitude)
-                                        setLocation.child("Picture").setValue(picture)
-                                        setLocation.child("fullName").setValue(fullName)
+
+                                     //   setLocation.child("Picture").setValue(picture)
+                                     //   setLocation.child("fullName").setValue(fullName)
                                     }
                                 }
                             }
@@ -65,6 +72,6 @@ class cuurentLoaction {
                         })
                 }
             }
-
+ return num
     }
 }

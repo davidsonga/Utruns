@@ -31,6 +31,7 @@ class LoginProgress {
 
         val auth = FirebaseAuth.getInstance()
        objProgress.isProgressDialogEnable(acitivity,"Please wait...")
+
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(acitivity) { task ->
                 if (task.isSuccessful) {
@@ -59,8 +60,8 @@ class LoginProgress {
             usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
                 @SuppressLint("SuspiciousIndentation")
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val userRole = dataSnapshot.child("Role").value.toString()
-                    val picture = dataSnapshot.child("Picture").value.toString()
+
+                    val picture = dataSnapshot.child("Picture").getValue(String::class.java)?:""
                     var objintent:intents=intents()
                     val activity2: UploadUserImageView = UploadUserImageView()
                     val activity3: HomePage = HomePage()
@@ -70,8 +71,8 @@ class LoginProgress {
                        // isTrue = true
                         objProgress.isProgressDialogDisable()
                         // I used picture.length < 5 because if picture is empty and you use isNull it returns a wrong answer
-                        if (picture.length < 5) {
-                            appLifecycleCallback = (activity.application as MyApp).appLifecycleCallback
+                        if (picture.isEmpty() || picture == "") {
+                          //  appLifecycleCallback = (activity.application as MyApp).appLifecycleCallback
                             // Picture field is empty
                             objProgress.isProgressDialogDisable()
                             isProfilePicture = false
@@ -82,7 +83,8 @@ class LoginProgress {
                             objProgress.isProgressDialogDisable()
                             isProfilePicture = true
                             Toast.makeText(activity, "Login success", Toast.LENGTH_LONG).show()
-                            decisionMking(activity)
+                            val  intent: Intent = Intent(activity, activity3::class.java)
+                            activity.startActivity(intent)
                         }
 
                         // Add the FCM token to the user's data
@@ -104,39 +106,7 @@ class LoginProgress {
 
 
     }
-    private fun decisionMking(activity: Activity){
-        var userHasCar:Boolean = false;
-        FirebaseDatabase.getInstance().reference.child("vehicles").addValueEventListener(object :ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for(vehicleSnapshot in snapshot.children){
-                    val vehicleKey = vehicleSnapshot.key
-                    val isAvailable = vehicleSnapshot.child("isAvailable").getValue(Boolean::class.java)
-                    val employeeUID = vehicleSnapshot.child("key").getValue(String::class.java)
-                    if(isAvailable ==false && employeeUID == FirebaseAuth.getInstance().uid){
 
-                        val  intent: Intent = Intent(activity, HomePage::class.java)
-                        activity.startActivity(intent)
-                        userHasCar =true
-
-                    }
-
-
-                }
-
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-        if(!userHasCar){
-
-            val  intent: Intent = Intent(activity, SelectCar::class.java)
-            activity.startActivity(intent)
-
-        }
-    }
 
 
 }

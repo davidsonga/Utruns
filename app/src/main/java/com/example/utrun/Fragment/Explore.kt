@@ -7,6 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioGroup
 import com.example.utrun.R
+import android.location.LocationManager
+import android.widget.Toast
+import com.example.utrun.util.cuurentLoaction
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -39,10 +42,12 @@ class Explore : Fragment() {
 
                 R.id.offer -> replaceFragment(InboxFragment())
             }
+
         }
 
         return view
     }
+
 
     private fun replaceFragment(fragment: Fragment) {
         val fragmentManager = childFragmentManager
@@ -61,4 +66,11 @@ class Explore : Fragment() {
                 }
             }
     }
+    override fun onResume() {
+        super.onResume()
+
+       // val obj: cuurentLoaction = cuurentLoaction()
+      //  obj.setUserCurrentLocation(requireContext())
+    }
+
 }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.utrun.Adapter.TaskCardAdapter
 import com.example.utrun.R
 import com.example.utrun.models.Tasks
+import com.example.utrun.util.progressDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.SimpleDateFormat
@@ -44,6 +45,8 @@ class InboxFragment : Fragment(), TaskCardAdapter.TaskClickListener {
 
 
     private fun retrieveDataFromFirebase() {
+
+
         val tasksRef = databaseReference.child("tasks")
 
         tasksRef.addValueEventListener(object : ValueEventListener {
@@ -80,8 +83,10 @@ class InboxFragment : Fragment(), TaskCardAdapter.TaskClickListener {
                                tasksList.add(task)
 
                                // Initialize and bind the adapter to the RecyclerView
-                               taskCardAdapter = TaskCardAdapter(tasksList, this@InboxFragment)
-                               recyclerView.adapter = taskCardAdapter
+                               if (isAdded) {
+                                   taskCardAdapter = TaskCardAdapter(tasksList, this@InboxFragment, requireContext(), requireActivity())
+                                   recyclerView.adapter = taskCardAdapter
+                               }
                            }
 
                         }
@@ -90,6 +95,7 @@ class InboxFragment : Fragment(), TaskCardAdapter.TaskClickListener {
                             // Handle any errors related to retrieving location data
                         }
                     })
+
                 }
             }
 

@@ -38,8 +38,7 @@ class OutGoingFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_out_going, container, false)
         val selectedTasksList: MutableList<SelectedTask> = mutableListOf()
         selectedTaskAdapter = SelectedTaskAdapter(selectedTasksList,requireActivity(),requireContext()) // Use the correct adapter class
-        val search_view:SearchView = view.findViewById(R.id.search_view)
-        // Initialize recyclerView
+
         recyclerView = view.findViewById(R.id.selected_task_recycler_view)
         recyclerView.adapter = selectedTaskAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)

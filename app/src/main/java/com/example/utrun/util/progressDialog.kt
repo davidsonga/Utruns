@@ -11,9 +11,11 @@ class progressDialog {
     fun isProgressDialogEnable(activity:Activity,message:String):Boolean{
 
         progressDialog = ProgressDialog(activity)
-        progressDialog.setMessage("Loading...") // Set a message to be displayed
+        progressDialog.setMessage("Please wait...") // Set a message to be displayed
         progressDialog.setCancelable(false)
         progressDialog.show()
+
+
         return isTrue
     }
 

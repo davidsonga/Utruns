@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat
 
 import com.example.utrun.R
 import com.example.utrun.models.Locations
+import com.example.utrun.util.cuurentLoaction
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -304,10 +305,7 @@ class PickUpAndDropLocationsFragment : Fragment(), OnMapReadyCallback {
         return output
     }
 
-    override fun onStart() {
-        super.onStart()
-        setUserCurrentLocation( );
-    }
+
 
 
 

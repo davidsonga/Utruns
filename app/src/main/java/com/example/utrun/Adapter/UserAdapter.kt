@@ -3,6 +3,7 @@ package com.example.utrun.Adapter
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.utrun.R
 import com.example.utrun.models.User
 import com.example.utrun.models.timespan
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class UserAdapter(
     private var userList: List<User>,
@@ -47,6 +53,25 @@ class UserAdapter(
         holder.lastMessage.text = lastMessage?.take(20)
 
 
+      /*  val chatReference = FirebaseDatabase.getInstance().getReference("chats")
+            .child(FirebaseAuth.getInstance().currentUser?.uid + user.uid)
+
+        chatReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                for (chatSessionSnapshot in snapshot.children) {
+                    val isMessageRead = chatSessionSnapshot.child("currentReadMessage").getValue(Boolean::class.java) ?: true
+                    if (!isMessageRead) {
+                        holder.itemView.setBackgroundColor(Color.RED)
+                    }
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle possible errors here
+            }
+        })*/
 
 
         holder.itemView.setOnClickListener {

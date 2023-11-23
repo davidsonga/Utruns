@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.utrun.R
 import com.google.firebase.auth.FirebaseAuth
@@ -53,12 +54,13 @@ class AppStateService : Service() {
     }
     override fun onDestroy() {
         super.onDestroy()
-       // Set user's online status to the time spent in milliseconds
+        // Set user's online status to the time spent in milliseconds
         val currentDateTime = getCurrentDateTime()
         setUserOnlineStatus(currentDateTime)
     }
 
     private fun setUserOnlineStatus(status: String) {
+        Toast.makeText(this,"great", Toast.LENGTH_LONG).show()
         userRef.child("state").setValue(status)
         userRef.child("typing").setValue(false)
     }
@@ -75,4 +77,3 @@ class AppStateService : Service() {
         }
     }
 }
-
