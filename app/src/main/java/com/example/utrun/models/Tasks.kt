@@ -12,7 +12,5 @@ data class Tasks(
          var typeOfGoods: String = "",
          var txt_types: String = "",
          var uniqueID: String? = ""
-
-
 )
 

@@ -1,15 +1,18 @@
 package com.example.utrun.Fragment
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.utrun.Activity.TaskAddedByTheUser
 import com.example.utrun.Adapter.SelectedTaskAdapter
 import com.example.utrun.Adapter.TaskCardAdapter
 import com.example.utrun.R
@@ -28,7 +31,18 @@ class OutGoingFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var selectedTaskAdapter: SelectedTaskAdapter
     private lateinit var databaseReference: DatabaseReference
+    private lateinit var addNewTaskButton: ImageButton
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        addNewTaskButton = view.findViewById(R.id.btn_addTask)
+        addNewTaskButton.setOnClickListener {
+            val intent = Intent(activity, TaskAddedByTheUser::class.java)
+            // Start the new activity
+            startActivity(intent)
+        }
+    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreateView(
@@ -43,7 +57,6 @@ class OutGoingFragment : Fragment() {
         recyclerView.adapter = selectedTaskAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-
         // Initialize Firebase Database
         databaseReference = FirebaseDatabase.getInstance().reference
 
@@ -53,7 +66,6 @@ class OutGoingFragment : Fragment() {
         val vehiclesRef = databaseReference.child("vehicles")
 
 
-        // ...
         task.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (taskSnapshot in snapshot.children) {
@@ -136,11 +148,6 @@ class OutGoingFragment : Fragment() {
                 // Handle errors
             }
         })
-// ...
-
         return view
     }
-
-
-
 }

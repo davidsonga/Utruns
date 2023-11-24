@@ -14,7 +14,6 @@ import com.example.utrun.util.cuurentLoaction
 
 class UserTask : Fragment() {
 
-    private lateinit var addNewTaskButton: ImageButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,20 +34,6 @@ class UserTask : Fragment() {
         }
 
         return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        addNewTaskButton = view.findViewById(R.id.btn_addTask)
-        addNewTaskButton.setOnClickListener {
-            // Navigate to UserTask fragment
-            fragmentManager?.beginTransaction()?.apply {
-                replace(R.id.fragment_container, AddNewTask())
-                addToBackStack(null)
-                commit()
-            }
-        }
     }
 
     private fun replaceFragment(fragment: Fragment) {

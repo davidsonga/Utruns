@@ -40,7 +40,6 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
         return selectedTask
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.task_card_item, parent, false)
         return TaskViewHolder(view, listener)
@@ -127,9 +126,6 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
                                         activity.startActivity(intent)
                                     }else{
 
-
-
-
                                         // listener.onTaskSelected(selectedTask)
                                     }
                                 }
@@ -149,8 +145,6 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
 
                     }
                 }
-
-
             }
         }
     }

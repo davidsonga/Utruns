@@ -70,22 +70,14 @@ class Home : Fragment(), OnMapReadyCallback {
 
         locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-
         return view
     }
-
-
-
-
 
     override fun onResume() {
         super.onResume()
         mapView.onResume()
 
         requestLocationPermission()
-
-
-
     }
 
 
@@ -95,11 +87,10 @@ class Home : Fragment(), OnMapReadyCallback {
     }
 
     override fun onDestroy() {
+        if (::mapView.isInitialized) {
+            mapView.onDestroy()
+        }
         super.onDestroy()
-        mapView.onDestroy()
-
-
-
     }
 
     override fun onLowMemory() {
@@ -137,6 +128,11 @@ class Home : Fragment(), OnMapReadyCallback {
                 getLocation.addValueEventListener(object : ValueEventListener {
                     @SuppressLint("CommitPrefEdits")
                     override fun onDataChange(snapshot: DataSnapshot) {
+
+                        if (!isAdded || activity == null) {
+                            return
+                        }
+
                         for(locationSnapshop in snapshot.children){
                             val uid = locationSnapshop.key.toString()
                             val lat = locationSnapshop.child("latitude").getValue(Double::class.java)
@@ -150,7 +146,7 @@ class Home : Fragment(), OnMapReadyCallback {
                             array.add(add)
 
                         }
-// Retrieve the location and organization information from the intent
+                        // Retrieve the location and organization information from the intent
                         //val latitude = requireActivity().intent.getDoubleExtra("lat", 0.0)
                         //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
                         // val companyName = requireActivity().intent.getStringExtra("organization")
@@ -197,7 +193,9 @@ class Home : Fragment(), OnMapReadyCallback {
                 })
 
             } else {
-                Toast.makeText(requireContext(),"Internet connection not stable",Toast.LENGTH_LONG).show()
+                if (isAdded && context != null) {
+                    Toast.makeText(requireContext(), "Internet connection not stable", Toast.LENGTH_LONG).show()
+                }
             }
 
 
@@ -240,6 +238,11 @@ class Home : Fragment(), OnMapReadyCallback {
     }
 
     private fun getLocation(lat: Double, lon: Double, picture: Bitmap?, fullname:String,uid:String) {
+
+        if (!isAdded || activity == null) {
+            return
+        }
+
         try {
 
             if (lat != 0.0 && lon != 0.0 && fullname.isNotEmpty() && !fullname.equals("") && uid.isNotEmpty()) {
@@ -324,14 +327,14 @@ class Home : Fragment(), OnMapReadyCallback {
     }
 
     private fun setLocationOnMap(location: LatLng, name: String?) {
-        val markerOptions = MarkerOptions()
-            .position(location)
-            .title( name)
+        if (googleMap != null && isAdded && context != null) {
+            val markerOptions = MarkerOptions()
+                .position(location)
+                .title(name)
 
-        googleMap?.addMarker(markerOptions)
-        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
-        obj.isProgressDialogDisable()
+            googleMap?.addMarker(markerOptions)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+            obj.isProgressDialogDisable()
+        }
     }
-
-
 }

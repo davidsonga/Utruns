@@ -1,5 +1,6 @@
 package com.example.utrun.Fragment
 
+import android.content.Intent
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -7,14 +8,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.utrun.Activity.TaskAddedByTheUser
+import com.example.utrun.Activity.task_details
 import com.example.utrun.Adapter.TaskCardAdapter
 import com.example.utrun.R
 import com.example.utrun.models.Tasks
-import com.example.utrun.util.progressDialog
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -24,6 +26,18 @@ class InboxFragment : Fragment(), TaskCardAdapter.TaskClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var taskCardAdapter: TaskCardAdapter
     private lateinit var databaseReference: DatabaseReference
+    private lateinit var addNewTaskButton: ImageButton
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        addNewTaskButton = view.findViewById(R.id.btn_addTask)
+        addNewTaskButton.setOnClickListener {
+            val intent = Intent(activity, TaskAddedByTheUser::class.java)
+            // Start the new activity
+            startActivity(intent)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -113,6 +127,4 @@ class InboxFragment : Fragment(), TaskCardAdapter.TaskClickListener {
     override fun onTaskSelected(task: Tasks) {
         // Handle item selection
     }
-
-
 }

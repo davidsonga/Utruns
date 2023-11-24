@@ -174,6 +174,7 @@ private val ctx:Context = context
 
                 }
             }
+
             itemView.findViewById<TextView>(R.id.select_task_button).setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {

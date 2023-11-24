@@ -22,6 +22,9 @@
         android:theme="@style/Theme.Utrun"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.TaskAddedByTheUser"
+            android:exported="false" />
+        <activity
             android:name=".Activity.Pick_Drop"
             android:exported="false" />
 
