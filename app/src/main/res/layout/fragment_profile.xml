@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:background="@drawable/background_image"
     android:orientation="vertical">
-    <Button
-        android:id="@+id/LogOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="16dp"
-        android:text="Log-out" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/LogOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Log-out" />
+    </RelativeLayout>
+
     <ImageView
         android:id="@+id/profileImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_gravity="center_horizontal"
-
         android:contentDescription="@string/profile_picture" />
-
 
     <Button
         android:id="@+id/btnChangePic"
@@ -86,24 +91,19 @@
         android:layout_marginTop="16dp"
         android:text="@string/save_changes" />
 
-
-    <RelativeLayout
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <Button
-            android:id="@+id/removeCar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remove car"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="@color/green"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
-    </RelativeLayout>
-
-
-
+    <Button
+        android:id="@+id/removeCar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove car"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="10dp"
+        android:background="@color/green"/>
 
 </LinearLayout>
