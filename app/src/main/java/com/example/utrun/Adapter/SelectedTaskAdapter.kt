@@ -165,8 +165,6 @@ private val ctx:Context = context
                         editor.apply()
                         activity.startActivity(intent)
 
-                        // Toast.makeText(ctx,"Latitude: $latitude, Longitude: $longitude",Toast.LENGTH_LONG).show()
-
                     } else {
                         // Handle the case where the address could not be geocoded
                     }
