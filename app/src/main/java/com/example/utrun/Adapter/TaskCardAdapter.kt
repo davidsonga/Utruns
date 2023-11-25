@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -54,13 +55,13 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = tasksList[position]
-        holder.id.text = "Task Code: ${task.userID}"
-        holder.txt_placeNames.text = "Organization: ${task.placeNames}"
-        holder.pickLocation.text = "Pick up location: ${task.pickLocation}"
-        holder.dropLocation.text = "Drop location: ${task.dropLocation}"
-        holder.timeUploaded.text = "Time uploaded: ${task.time}"
-        holder.typeOfGoods.text = "Goods: ${task.typeOfGoods}"
-        holder.txt_types.text = "Type: ${task.txt_types}"
+        holder.id.text = Html.fromHtml("<b>Task Code:</b> ${task.userID}")
+        holder.txt_placeNames.text = Html.fromHtml("<b>Organization:</b> ${task.placeNames}")
+        holder.pickLocation.text = Html.fromHtml("<b>Pick up location:</b> ${task.pickLocation}")
+        holder.dropLocation.text = Html.fromHtml("<b>Drop location:</b> ${task.dropLocation}")
+        holder.timeUploaded.text = Html.fromHtml("<b>Time uploaded:</b> ${task.time}")
+        holder.typeOfGoods.text = Html.fromHtml("<b>Goods:</b> ${task.typeOfGoods}")
+        holder.txt_types.text = Html.fromHtml("<b>Type:</b> ${task.txt_types}")
 
         // Highlight the selected task
         if (task == selectedTask) {

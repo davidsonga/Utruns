@@ -51,6 +51,7 @@ private val ctx:Context = context
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             holder.employeeImageView.setImageBitmap(bitmap)
         }
+
         val timestamp = selectedTask.time.toString().toLong()
         val formattedDate = convertTimestampToFormattedDate(timestamp)
         holder.txt_times.text = Html.fromHtml("<b>Time selected:</b> ${formattedDate.toString()}")
@@ -58,8 +59,8 @@ private val ctx:Context = context
         holder.employeeSurname.text = Html.fromHtml("<b>User surname:</b> ${selectedTask.employeeSurname}")
         holder.taskCode.text = Html.fromHtml("<b>Organization:</b> ${selectedTask.name}<br><b>Task code:</b> ${selectedTask.taskCode}")
         holder.pickLocation.text = Html.fromHtml("<b>Pickup location:</b> ${selectedTask.pickLocation}")
-        holder.dropLocation.text = Html.fromHtml("<b>Drop location:</b> ${selectedTask.dropLocation}")
-        holder.typeOfGoods.text = Html.fromHtml("<b>Goods:</b> ${selectedTask.typeOfGoods}")
+        holder.pickLocation.text = "Pickup location: ${selectedTask.pickLocation}"
+        holder.dropLocation.text = "Drop location: ${selectedTask.dropLocation}"
         holder.carBrand.text = Html.fromHtml("<b>Car brand:</b> ${selectedTask.brand}")
         holder.numberPlate.text = Html.fromHtml("<b>Number plate:</b> ${selectedTask.numberPlate}")
 
@@ -68,7 +69,6 @@ private val ctx:Context = context
             } else {
                 holder.select_task_buttons.visibility = View.INVISIBLE
             }
-
     }
 
     fun convertTimestampToFormattedDate(timestamp: Long): String {
