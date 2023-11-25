@@ -63,6 +63,7 @@ private val ctx:Context = context
         holder.dropLocation.text = "Drop location: ${selectedTask.dropLocation}"
         holder.carBrand.text = Html.fromHtml("<b>Car brand:</b> ${selectedTask.brand}")
         holder.numberPlate.text = Html.fromHtml("<b>Number plate:</b> ${selectedTask.numberPlate}")
+        holder.typeOfGoods.text= Html.fromHtml("<b>Goods:</b> ${selectedTask.typeOfGoods}")
 
         if (FirebaseAuth.getInstance().uid.toString() == selectedTask.UID) {
             holder.select_task_buttons.visibility = View.VISIBLE
@@ -95,11 +96,12 @@ private val ctx:Context = context
         val pickLocation: TextView = itemView.findViewById(R.id.txt_pickLocation)
         val dropLocation: TextView = itemView.findViewById(R.id.txt_dropLocation)
         val typeOfGoods: TextView = itemView.findViewById(R.id.txt_typeOfGoods)
-        val  carBrand: TextView = itemView.findViewById(R.id.txt_carBrand)
-        val  numberPlate: TextView = itemView.findViewById(R.id.txt_numberPlate)
-        val  txt_times: TextView = itemView.findViewById(R.id.txt_time)
-        val  select_task_buttons: TextView = itemView.findViewById(R.id.select_task_button)
+        val carBrand: TextView = itemView.findViewById(R.id.txt_carBrand)
+        val numberPlate: TextView = itemView.findViewById(R.id.txt_numberPlate)
+        val txt_times: TextView = itemView.findViewById(R.id.txt_time)
+        val select_task_buttons: TextView = itemView.findViewById(R.id.select_task_button)
         private lateinit var progressDialog: ProgressDialog
+
         init {
             itemView.findViewById<TextView>(R.id.txt_dropLocation).setOnClickListener {
                 progressDialog = ProgressDialog(activity)
