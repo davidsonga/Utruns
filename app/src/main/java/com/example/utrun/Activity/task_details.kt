@@ -10,6 +10,7 @@ import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.text.Html
 import android.util.Base64
 import android.widget.Button
 import android.widget.ImageView
@@ -54,16 +55,18 @@ class task_details : AppCompatActivity() {
         val task = intent.getStringExtra("task")
         val dropLocation = intent.getStringExtra("drop")
         val vehicle = intent.getStringExtra("vehicle")
-        val NumberPlate = intent.getStringExtra("NumberPlate")
+        val numberPlate = intent.getStringExtra("NumberPlate")
         isBool = intent.getBooleanExtra("bool", false)
 
         val imageBytes = Base64.decode(profile, Base64.DEFAULT)
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         findViewById<ImageView>(R.id.user_image).setImageBitmap(bitmap)
 
-        findViewById<TextView>(R.id.txt_vehicle).text = "Vehicle: $vehicle"
-        findViewById<TextView>(R.id.txt_Task).text = "PickUp: $pickLocation"
-        findViewById<TextView>(R.id.txt_Drop).text = "Drop: $dropLocation"
+        findViewById<TextView>(R.id.txt_TaskCode).text = Html.fromHtml("<b>Task Code:</b> $task")
+        findViewById<TextView>(R.id.txt_vehicle).text = Html.fromHtml("<b>Vehicle:</b> $vehicle / <b>Number Plate:</b> $numberPlate")
+        findViewById<TextView>(R.id.txt_Task).text = Html.fromHtml("<b>PickUp:</b> $pickLocation")
+        findViewById<TextView>(R.id.txt_Drop).text = Html.fromHtml("<b>Drop:</b> $dropLocation")
+
     }
 
     private fun setupFirebaseListeners() {

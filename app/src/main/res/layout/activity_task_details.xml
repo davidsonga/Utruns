@@ -24,7 +24,6 @@
             android:layout_marginVertical="10dp"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold"
             android:padding="8dp"/>
 
         <View
@@ -64,7 +63,6 @@
             android:layout_marginVertical="5dp"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold"
             android:padding="8dp"/>
     </LinearLayout>
 
@@ -85,7 +83,6 @@
             android:layout_marginVertical="5dp"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold"
             android:padding="8dp"/>
     </LinearLayout>
 
@@ -106,7 +103,6 @@
             android:layout_marginVertical="5dp"
             android:textColor="@color/black"
             android:textSize="18sp"
-            android:textStyle="bold"
             android:padding="8dp"/>
     </LinearLayout>
 

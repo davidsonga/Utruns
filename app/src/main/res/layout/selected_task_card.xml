@@ -50,8 +50,7 @@
                         android:layout_height="wrap_content"
                         android:text="Employee Name"
                         android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"/>
+                        android:textSize="18sp"/>
 
                     <TextView
                         android:id="@+id/txt_employeeSurname"
@@ -71,7 +70,6 @@
                 android:textColor="@color/black"
                 android:background="@drawable/select_car_design"
                 android:textSize="18sp"
-                android:textStyle="bold"
                 android:layout_marginTop="8dp"
                 android:padding="6dp"/>
 

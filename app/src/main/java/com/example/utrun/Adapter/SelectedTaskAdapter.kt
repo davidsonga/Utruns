@@ -9,6 +9,7 @@ import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
+import android.text.Html
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -50,17 +51,17 @@ private val ctx:Context = context
             val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             holder.employeeImageView.setImageBitmap(bitmap)
         }
-          val timestamp = selectedTask.time.toString().toLong()
-          val formattedDate = convertTimestampToFormattedDate(timestamp)
-            holder.txt_times.text = "Time selected: ${formattedDate.toString()}"
-            holder.employeeName.text = "User name: ${selectedTask.employeeName}"
-            holder.employeeSurname.text = "User surname: ${selectedTask.employeeSurname}"
-            holder.taskCode.text = "Organization: ${selectedTask.name}\nTask code: ${selectedTask.taskCode}"
-            holder.pickLocation.text = "Pickup location: ${selectedTask.pickLocation}"
-            holder.dropLocation.text = "Drop location: ${selectedTask.dropLocation}"
-            holder.typeOfGoods.text = "Goods: ${selectedTask.typeOfGoods}"
-            holder.carBrand.text = "Car brand: ${selectedTask.brand}";
-            holder.numberPlate.text = "Number plate: ${selectedTask.numberPlate}";
+        val timestamp = selectedTask.time.toString().toLong()
+        val formattedDate = convertTimestampToFormattedDate(timestamp)
+        holder.txt_times.text = Html.fromHtml("<b>Time selected:</b> ${formattedDate.toString()}")
+        holder.employeeName.text = Html.fromHtml("<b>User name:</b> ${selectedTask.employeeName}")
+        holder.employeeSurname.text = Html.fromHtml("<b>User surname:</b> ${selectedTask.employeeSurname}")
+        holder.taskCode.text = Html.fromHtml("<b>Organization:</b> ${selectedTask.name}<br><b>Task code:</b> ${selectedTask.taskCode}")
+        holder.pickLocation.text = Html.fromHtml("<b>Pickup location:</b> ${selectedTask.pickLocation}")
+        holder.dropLocation.text = Html.fromHtml("<b>Drop location:</b> ${selectedTask.dropLocation}")
+        holder.typeOfGoods.text = Html.fromHtml("<b>Goods:</b> ${selectedTask.typeOfGoods}")
+        holder.carBrand.text = Html.fromHtml("<b>Car brand:</b> ${selectedTask.brand}")
+        holder.numberPlate.text = Html.fromHtml("<b>Number plate:</b> ${selectedTask.numberPlate}")
 
             if (FirebaseAuth.getInstance().uid.toString() == selectedTask.UID) {
                 holder.select_task_buttons.visibility = View.VISIBLE
