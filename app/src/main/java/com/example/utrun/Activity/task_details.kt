@@ -87,8 +87,6 @@ class task_details : AppCompatActivity() {
                         goodsPick = goods.toString()
                         dropID =dropoffLocationId.toString()
 
-
-
                     }
                 }
             }
@@ -114,7 +112,6 @@ class task_details : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
-
         })
 
         btn_finishOnboarding.setOnClickListener {
