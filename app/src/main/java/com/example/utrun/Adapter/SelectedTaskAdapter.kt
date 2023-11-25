@@ -64,11 +64,12 @@ private val ctx:Context = context
         holder.carBrand.text = Html.fromHtml("<b>Car brand:</b> ${selectedTask.brand}")
         holder.numberPlate.text = Html.fromHtml("<b>Number plate:</b> ${selectedTask.numberPlate}")
 
-            if (FirebaseAuth.getInstance().uid.toString() == selectedTask.UID) {
-                holder.select_task_buttons.visibility = View.VISIBLE
-            } else {
-                holder.select_task_buttons.visibility = View.INVISIBLE
-            }
+        if (FirebaseAuth.getInstance().uid.toString() == selectedTask.UID) {
+            holder.select_task_buttons.visibility = View.VISIBLE
+        } else {
+            holder.select_task_buttons.visibility = View.INVISIBLE
+        }
+
     }
 
     fun convertTimestampToFormattedDate(timestamp: Long): String {
