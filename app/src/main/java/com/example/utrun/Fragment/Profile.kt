@@ -63,18 +63,10 @@ class Profile : Fragment() {
             FirebaseAuth.getInstance().signOut()
             val intent:Intent= Intent(requireActivity(),MainActivity::class.java)
             startActivity(intent)
-
-
-
-
-
         }
-
 
         binding.removeCar.setOnClickListener(){
             val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-
-            // ... (Your existing code to get currentTimeMillis)
 
             // Check if the user is logged in
             if (currentUserUid.isNotEmpty()) {
@@ -298,13 +290,5 @@ class Profile : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Show toast message when returning to the fragment
-        //  Toast.makeText(context, "Return back", Toast.LENGTH_SHORT).show()
-        val obj: cuurentLoaction = cuurentLoaction()
-        obj.setUserCurrentLocation(requireContext())
     }
 }
