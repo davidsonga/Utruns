@@ -26,29 +26,28 @@ import com.google.firebase.database.ValueEventListener
 import java.io.ByteArrayOutputStream
 
 class task_details : AppCompatActivity() {
-    private lateinit var imageView1:ImageView
     private val REQUEST_IMAGE_CAPTURE = 1
-    private val REQUEST_IMAGE_PICK = 2
-    private  var uniqueID:String=""
-    private  var goodsPick:String=""
-    private var name:String?=""
-    private  var dropID:String =""
-    private  var Keys:String =""
+    private var uniqueID: String = ""
+    private var goodsPick: String = ""
+    private var name: String? = ""
+    private var dropID: String = ""
+    private var keys: String = ""
+    private var isBool: Boolean = false
+    private lateinit var imageView1: ImageView
+    private var imageUploaded: Boolean = false
 
-    private  var isBool:Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_details)
-     val txt_TaskCode:TextView = findViewById(R.id.txt_TaskCode)
-     val txt_vehicle:TextView = findViewById(R.id.txt_vehicle)
-     val txt_Task:TextView = findViewById(R.id.txt_Task)
-     val txt_Drop:TextView = findViewById(R.id.txt_Drop)
-     val user_image:ImageView = findViewById(R.id.user_image)
-     val btn_finishOnboarding:Button = findViewById(R.id.btn_finishOnboarding)
-     val btn_TakePhoto: Button = findViewById(R.id.btn_TakePhoto)
 
+        loadDataFromIntent()
+        setupFirebaseListeners()
+        setupUI()
+    }
+
+    private fun loadDataFromIntent() {
         val UID = intent.getStringExtra("uid")
-        Keys = intent.getStringExtra("Key").toString()
+        keys = intent.getStringExtra("Key") ?: ""
         val sharedPref = this.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
         val profile = sharedPref.getString("profile", "")
         val pickLocation = intent.getStringExtra("pick")
@@ -56,83 +55,74 @@ class task_details : AppCompatActivity() {
         val dropLocation = intent.getStringExtra("drop")
         val vehicle = intent.getStringExtra("vehicle")
         val NumberPlate = intent.getStringExtra("NumberPlate")
-        isBool = intent.getBooleanExtra("bool",false)
-
-        //converting string to bitmap
+        isBool = intent.getBooleanExtra("bool", false)
 
         val imageBytes = Base64.decode(profile, Base64.DEFAULT)
         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        user_image.setImageBitmap(bitmap)
+        findViewById<ImageView>(R.id.user_image).setImageBitmap(bitmap)
 
-        txt_vehicle.text = "Vehicle: ${vehicle}"
-        txt_Task.text =  "PickUp: ${pickLocation}"
-        txt_Drop.text = "Drop: ${dropLocation}"
-        val databaseReference = FirebaseDatabase.getInstance().reference
+        findViewById<TextView>(R.id.txt_vehicle).text = "Vehicle: $vehicle"
+        findViewById<TextView>(R.id.txt_Task).text = "PickUp: $pickLocation"
+        findViewById<TextView>(R.id.txt_Drop).text = "Drop: $dropLocation"
+    }
 
-        //get tasks values
+    private fun setupFirebaseListeners() {
         val tasksRef = FirebaseDatabase.getInstance().reference.child("tasks")
 
         tasksRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (taskSnapshot in snapshot.children) {
-                    val uniqueKey = taskSnapshot.key // Get the unique key for each task
+                    val uniqueKey = taskSnapshot.key
                     val dropoffLocationId = taskSnapshot.child("dropoffLocationId").getValue(String::class.java)
                     val goods = taskSnapshot.child("typeOfGoods").getValue(String::class.java)
-                    val employeeUid = taskSnapshot.child("employeeUid").getValue(String::class.java)
 
-
-                    if (dropoffLocationId == task) {
-
+                    if (dropoffLocationId == dropID) {
                         uniqueID = uniqueKey.toString()
                         goodsPick = goods.toString()
-                        dropID =dropoffLocationId.toString()
-
                     }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle errors
+                Toast.makeText(applicationContext, "Error fetching data", Toast.LENGTH_SHORT).show()
             }
         })
-        val locData =  FirebaseDatabase.getInstance().reference.child("locations")
-        locData.addValueEventListener(object :ValueEventListener{
+
+        val locData = FirebaseDatabase.getInstance().reference.child("locations")
+        locData.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for(snap in snapshot.children){
-                    val keyys= snap.key
-                    val names= snap.child("name").getValue(String::class.java)
+                for (snap in snapshot.children) {
+                    val keyys = snap.key
+                    val names = snap.child("name").getValue(String::class.java)
 
-                    if(dropID == keyys){
-                        name=names.toString()
-                        txt_TaskCode.text ="Company name: ${name}"
+                    if (dropID == keyys) {
+                        name = names.toString()
+                        findViewById<TextView>(R.id.txt_TaskCode).text = "Company name: $name"
                     }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Toast.makeText(applicationContext, "Error fetching data", Toast.LENGTH_SHORT).show()
             }
         })
+    }
 
-        btn_finishOnboarding.setOnClickListener {
-            imageView1 = findViewById(R.id.imageView1)
-            val drawable = imageView1.drawable
+    private fun setupUI() {
+        imageView1 = findViewById(R.id.imageView1)
 
-            if (drawable == null) {
-                // No image is set, show a Toast message
+        findViewById<Button>(R.id.btn_finishOnboarding).setOnClickListener {
+            if (!imageUploaded) {
                 Toast.makeText(this, "Please upload an image to proceed", Toast.LENGTH_LONG).show()
-            } else {
-                // Convert the drawable to a Bitmap and proceed
-                val bitmap: Bitmap = (drawable as BitmapDrawable).bitmap
-                uploadFinshishedTask(UID, pickLocation, task, dropLocation, NumberPlate, vehicle, bitmapToBase64(bitmap))
+                return@setOnClickListener
             }
+
+            val bitmap: Bitmap = (imageView1.drawable as BitmapDrawable).bitmap
+            uploadFinishedTask(bitmap)
         }
 
-        btn_TakePhoto.setOnClickListener {
-            // Create an intent to capture an image using the device's camera
+        findViewById<Button>(R.id.btn_TakePhoto).setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
-            // Check if there's a camera activity available to handle the intent
             if (takePictureIntent.resolveActivity(packageManager) != null) {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
             }
@@ -141,23 +131,16 @@ class task_details : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        imageView1  = findViewById(R.id.imageView1)
-        // Check if the request was successful
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
-                // If the request was for taking a photo with the camera
                 val imageBitmap = data.extras?.get("data") as Bitmap?
-                imageView1?.setImageBitmap(imageBitmap)
-            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
-                // If the request was for picking an image from the gallery
-                val selectedImage = data.data
-                val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImage)
-                imageView1?.setImageBitmap(imageBitmap)
+                imageView1.setImageBitmap(imageBitmap)
+                imageUploaded = true // Set the flag to true as an image has been captured
             }
         }
     }
 
-    fun bitmapToBase64(bitmap: Bitmap): String {
+    private fun bitmapToBase64(bitmap: Bitmap): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
@@ -165,55 +148,28 @@ class task_details : AppCompatActivity() {
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private fun uploadFinshishedTask(uid: String?, pickLocation: String?, task: String?, dropLocation: String?, NumberPlate:String?, vehicle: String?, bitmapToBase64: String) {
+    private fun uploadFinishedTask(bitmap: Bitmap) {
+        val bitmapToBase64 = bitmapToBase64(bitmap)
+        val UID = FirebaseAuth.getInstance().uid ?: return
 
-        //upload uid
-
-        val dutyCompleted = FirebaseDatabase.getInstance().reference.child("dutyCompleted")
-            .child(Keys)
-        dutyCompleted.child("PickLocation").setValue(pickLocation)
-        dutyCompleted.child("DropLocation").setValue(dropLocation)
-        dutyCompleted.child("vehicle").setValue(vehicle)
-        dutyCompleted.child("NumberPlate").setValue(NumberPlate)
+        val dutyCompleted = FirebaseDatabase.getInstance().reference.child("dutyCompleted").child(keys)
+        dutyCompleted.child("PickLocation").setValue(findViewById<TextView>(R.id.txt_Task).text.toString())
+        dutyCompleted.child("DropLocation").setValue(findViewById<TextView>(R.id.txt_Drop).text.toString())
+        dutyCompleted.child("vehicle").setValue(findViewById<TextView>(R.id.txt_vehicle).text.toString())
+        dutyCompleted.child("NumberPlate").setValue("Your Number Plate Data Here") // Replace with actual data
         dutyCompleted.child("Picture").setValue(bitmapToBase64)
         dutyCompleted.child("CompanyName").setValue(name)
         dutyCompleted.child("TypeOfGoods").setValue(goodsPick)
+
         val currentTimeMillis = System.currentTimeMillis()
         val tasks = FirebaseDatabase.getInstance().reference.child("tasks")
-           tasks.addValueEventListener(object :ValueEventListener{
-               override fun onDataChange(snapshot: DataSnapshot) {
-                   if(isBool){
-                       for(taskSnapshot in snapshot.children){
+        tasks.child(keys).child("completedTimestamp").setValue(currentTimeMillis)
+        tasks.child(keys).child("ratingId").setValue(keys)
 
-                           val completedTimestamp =taskSnapshot.child("completedTimestamp").getValue(Long::class.java)
-                           val employeeUid = taskSnapshot.child("employeeUid").getValue(String::class.java)
-                           val currentJob = employeeUid+Keys
-                           val currentUser = FirebaseAuth.getInstance().uid+Keys
-                           if(currentJob ==currentUser &&completedTimestamp ==0L ){
-                               tasks.child(Keys).child("completedTimestamp").setValue(currentTimeMillis)
-                               tasks.child(Keys).child("ratingId").setValue(Keys)
-
-                           }
-
-                   }
-                       isBool =false
-
-
-
-                   }
-
-               }
-
-               override fun onCancelled(error: DatabaseError) {
-                   TODO("Not yet implemented")
-               }
-
-           })
-        Toast.makeText(this,"Finish task has been submitted",Toast.LENGTH_LONG).show()
-        val intent :Intent = Intent(this, Rate::class.java)
-        intent.putExtra("taskID",task)
+        Toast.makeText(this, "Finish task has been submitted", Toast.LENGTH_LONG).show()
+        val intent = Intent(this, Rate::class.java) // Replace Rate::class.java with your actual class
+        intent.putExtra("taskID", "Your Task ID Here") // Replace with actual task ID
         startActivity(intent)
         finish()
-
     }
 }
