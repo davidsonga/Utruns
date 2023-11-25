@@ -63,6 +63,8 @@ class TaskCardAdapter(private var tasksList: List<Tasks>, private val listener: 
         holder.typeOfGoods.text = Html.fromHtml("<b>Goods:</b> ${task.typeOfGoods}")
         holder.txt_types.text = Html.fromHtml("<b>Type:</b> ${task.txt_types}")
 
+
+
         // Highlight the selected task
         if (task == selectedTask) {
             holder.itemView.setBackgroundColor(Color.LTGRAY)
