@@ -153,13 +153,15 @@ class task_details : AppCompatActivity() {
     @SuppressLint("SuspiciousIndentation")
     private fun uploadFinishedTask(bitmap: Bitmap) {
         val bitmapToBase64 = bitmapToBase64(bitmap)
+        val numberPlate = intent.getStringExtra("NumberPlate")
+        val task = intent.getStringExtra("task")
         val UID = FirebaseAuth.getInstance().uid ?: return
 
         val dutyCompleted = FirebaseDatabase.getInstance().reference.child("dutyCompleted").child(keys)
         dutyCompleted.child("PickLocation").setValue(findViewById<TextView>(R.id.txt_Task).text.toString())
         dutyCompleted.child("DropLocation").setValue(findViewById<TextView>(R.id.txt_Drop).text.toString())
         dutyCompleted.child("vehicle").setValue(findViewById<TextView>(R.id.txt_vehicle).text.toString())
-        dutyCompleted.child("NumberPlate").setValue("Your Number Plate Data Here") // Replace with actual data
+        dutyCompleted.child("NumberPlate").setValue(numberPlate)
         dutyCompleted.child("Picture").setValue(bitmapToBase64)
         dutyCompleted.child("CompanyName").setValue(name)
         dutyCompleted.child("TypeOfGoods").setValue(goodsPick)
@@ -170,8 +172,8 @@ class task_details : AppCompatActivity() {
         tasks.child(keys).child("ratingId").setValue(keys)
 
         Toast.makeText(this, "Finish task has been submitted", Toast.LENGTH_LONG).show()
-        val intent = Intent(this, Rate::class.java) // Replace Rate::class.java with your actual class
-        intent.putExtra("taskID", "Your Task ID Here") // Replace with actual task ID
+        val intent = Intent(this, Rate::class.java)
+        intent.putExtra("taskID", task)
         startActivity(intent)
         finish()
     }
