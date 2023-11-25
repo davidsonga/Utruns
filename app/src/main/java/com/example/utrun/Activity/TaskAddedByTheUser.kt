@@ -3,8 +3,10 @@ package com.example.utrun.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import com.example.utrun.R
 import com.example.utrun.models.Task
@@ -26,6 +28,8 @@ class TaskAddedByTheUser : AppCompatActivity() {
     // Firebase reference
     private val firebaseDatabase = FirebaseDatabase.getInstance()
     private val tasksReference = firebaseDatabase.getReference("tasks")
+    private lateinit var dropOffLocationSpinner: Spinner
+    private var locationsMap = HashMap<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,9 +38,10 @@ class TaskAddedByTheUser : AppCompatActivity() {
         backButton = findViewById(R.id.btn_back)
         addTaskButton = findViewById(R.id.btn_newBird)
         pickupLocationEditText = findViewById(R.id.scientific_PickUpLocation)
-        dropoffLocationEditText = findViewById(R.id.DropOffLocationEt)
         typeOfGoodsEditText = findViewById(R.id.typeOfGoods)
         typeEditText = findViewById(R.id.typeEt)
+        dropOffLocationSpinner = findViewById(R.id.spinner_dropOffLocation)
+        loadLocationsIntoSpinner()
 
         addTaskButton.setOnClickListener {
             if (validateInputs()) {
@@ -44,6 +49,28 @@ class TaskAddedByTheUser : AppCompatActivity() {
             }
         }
     }
+
+    private fun loadLocationsIntoSpinner() {
+        val locationNames = ArrayList<String>()
+        firebaseDatabase.getReference("locations").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (locationSnapshot in snapshot.children) {
+                    val name = locationSnapshot.child("name").getValue(String::class.java) ?: continue
+                    val id = locationSnapshot.key ?: continue
+                    locationsMap[name] = id
+                    locationNames.add(name)
+                }
+                val adapter = ArrayAdapter(this@TaskAddedByTheUser, android.R.layout.simple_spinner_item, locationNames)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                dropOffLocationSpinner.adapter = adapter
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@TaskAddedByTheUser, "Error loading locations: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
 
     private fun isValidAddress(address: String): Boolean {
         // Regular Expression for basic address validation
@@ -53,16 +80,15 @@ class TaskAddedByTheUser : AppCompatActivity() {
 
     private fun validateInputs(): Boolean {
         val pickupLocation = pickupLocationEditText.text.toString()
-        val dropoffLocation = dropoffLocationEditText.text.toString()
         val typeOfGoods = typeOfGoodsEditText.text.toString()
         val type = typeEditText.text.toString()
 
-        if (pickupLocation.isEmpty() || dropoffLocation.isEmpty() || typeOfGoods.isEmpty() || type.isEmpty()) {
+        if (pickupLocation.isEmpty()  || typeOfGoods.isEmpty() || type.isEmpty()) {
             Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             return false
         }
 
-        if (!isValidAddress(pickupLocation) || !isValidAddress(dropoffLocation)) {
+        if (!isValidAddress(pickupLocation)) {
             Toast.makeText(this, "Please enter valid addresses", Toast.LENGTH_SHORT).show()
             return false
         }
@@ -112,7 +138,7 @@ class TaskAddedByTheUser : AppCompatActivity() {
 
     private fun createAndAddTask(vehicleId: String, vehicleBrand: String, vehicleNumberPlate: String) {
         val pickupLocation = pickupLocationEditText.text.toString()
-        val dropoffLocation = dropoffLocationEditText.text.toString()
+        val dropoffLocationName = dropOffLocationSpinner.selectedItem.toString()
         val typeOfGoods = typeOfGoodsEditText.text.toString()
         val type = typeEditText.text.toString()
 
@@ -122,27 +148,42 @@ class TaskAddedByTheUser : AppCompatActivity() {
         // Assuming you have a method to get the current logged-in user's UID
         val employeeUid = getCurrentUserUid()
 
-        // Create a new Task object with all the details
-        val newTask = Task(
-            pickupLocation = pickupLocation,
-            dropoffLocation = dropoffLocation,
-            typeOfGoods = typeOfGoods,
-            type = type,
-            employeeUid = employeeUid,
-            vehicleId = vehicleId,
-            vehicleBrand = vehicleBrand,
-            vehicleNumberPlate = vehicleNumberPlate,
-            assignedTimestamp = currentTimeMillis
-        )
+        // Retrieve the drop-off location ID from the spinner selection
+        val dropoffLocationId = locationsMap[dropoffLocationName]
 
-        // Add the new task to the Firebase database
-        tasksReference.push().setValue(newTask)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Task added successfully", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to add task", Toast.LENGTH_SHORT).show()
-            }
+        if (dropoffLocationId != null && dropoffLocationId.isNotEmpty()) {
+            // Create a new Task object with all the details
+            val newTask = Task(
+                pickupLocation = pickupLocation,
+                dropoffLocationId = dropoffLocationId, // Use dropoffLocationId here
+                typeOfGoods = typeOfGoods,
+                type = type,
+                employeeUid = employeeUid,
+                vehicleId = vehicleId,
+                vehicleBrand = vehicleBrand,
+                vehicleNumberPlate = vehicleNumberPlate,
+                assignedTimestamp = currentTimeMillis
+            )
+
+            // Add the new task to the Firebase database
+            tasksReference.push().setValue(newTask)
+                .addOnSuccessListener {
+                    Toast.makeText(this@TaskAddedByTheUser, "Task added successfully", Toast.LENGTH_SHORT).show()
+                    clearInputFields()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this@TaskAddedByTheUser, "Failed to add task", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this@TaskAddedByTheUser, "Invalid drop-off location name", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun clearInputFields() {
+        pickupLocationEditText.text.clear()
+        dropoffLocationEditText.text.clear()
+        typeOfGoodsEditText.text.clear()
+        typeEditText.text.clear()
     }
 
     private fun getCurrentUserUid(): String {

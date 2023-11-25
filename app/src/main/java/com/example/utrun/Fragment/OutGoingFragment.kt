@@ -3,6 +3,7 @@ package com.example.utrun.Fragment
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +40,6 @@ class OutGoingFragment : Fragment() {
         addNewTaskButton = view.findViewById(R.id.btn_addTask)
         addNewTaskButton.setOnClickListener {
             val intent = Intent(activity, TaskAddedByTheUser::class.java)
-            // Start the new activity
             startActivity(intent)
         }
     }
@@ -51,95 +51,61 @@ class OutGoingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_out_going, container, false)
         val selectedTasksList: MutableList<SelectedTask> = mutableListOf()
-        selectedTaskAdapter = SelectedTaskAdapter(selectedTasksList,requireActivity(),requireContext()) // Use the correct adapter class
+        selectedTaskAdapter = SelectedTaskAdapter(selectedTasksList, requireActivity(), requireContext())
 
         recyclerView = view.findViewById(R.id.selected_task_recycler_view)
         recyclerView.adapter = selectedTaskAdapter
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Initialize Firebase Database
         databaseReference = FirebaseDatabase.getInstance().reference
+        fetchTasks(selectedTasksList)
 
-        val locationRef = databaseReference.child("locations")
-        val task = databaseReference.child("tasks")
-        val loginRef = databaseReference.child("login")
+        return view
+    }
+
+    private fun fetchTasks(selectedTasksList: MutableList<SelectedTask>) {
+        val taskRef = databaseReference.child("tasks")
         val vehiclesRef = databaseReference.child("vehicles")
+        val loginRef = databaseReference.child("login")
+        val locationRef = databaseReference.child("locations")
 
-
-        task.addValueEventListener(object : ValueEventListener {
+        taskRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                selectedTasksList.clear()
                 for (taskSnapshot in snapshot.children) {
-                    val key =taskSnapshot.key // Get the unique key t
+                    val key = taskSnapshot.key
                     val employeeUid = taskSnapshot.child("employeeUid").getValue(String::class.java)
                     val pickupLocation = taskSnapshot.child("pickupLocation").getValue(String::class.java)
                     val typeOfGoods = taskSnapshot.child("typeOfGoods").getValue(String::class.java)
-                    val assignedTimestampLong = taskSnapshot.child("assignedTimestamp").getValue(Long::class.java)
-                    val vehiclKey = taskSnapshot.child("vehicleId").getValue(String::class.java)
-                    val dropID = taskSnapshot.child("dropoffLocationId").getValue(String::class.java)
+                    val assignedTimestamp = taskSnapshot.child("assignedTimestamp").getValue(Long::class.java)?.toString()
+                    val vehicleId = taskSnapshot.child("vehicleId").getValue(String::class.java)
+                    val dropoffLocationId = taskSnapshot.child("dropoffLocationId").getValue(String::class.java)
                     val completedTimestamp = taskSnapshot.child("completedTimestamp").getValue(Long::class.java)
 
-
-                    if (key != null) {
-                        // Fetch data from the 'vehicles' node
-                        vehiclesRef.child(vehiclKey.toString()).addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(vehiclesSnapshot: DataSnapshot) {
-                                val brand = vehiclesSnapshot.child("brand").getValue(String::class.java)
-                                val numberPlate = vehiclesSnapshot.child("numberPlate").getValue(String::class.java)
-
-
-                                loginRef.child("email").child(employeeUid.toString()).addListenerForSingleValueEvent(object : ValueEventListener {
-                                    override fun onDataChange(loginSnapshot: DataSnapshot) {
-                                        val employeePicture = loginSnapshot.child("Picture").getValue(String::class.java)
-                                        val employeeName = loginSnapshot.child("name").getValue(String::class.java)
-                                        val employeeSurname = loginSnapshot.child("surname").getValue(String::class.java)
-
-                                        locationRef.child(dropID.toString()).addValueEventListener(object : ValueEventListener {
-                                            override fun onDataChange(snapshot: DataSnapshot) {
-                                                val dropoff = snapshot.child("address").getValue(String::class.java)
-                                                val name = snapshot.child("name").getValue(String::class.java)
-
-                                                // Format the timestamp as a String if needed
-                                                val assignedTimestamp = assignedTimestampLong?.toString() ?: ""
-                                                if(completedTimestamp ==0L && !employeeUid.isNullOrEmpty()){
-                                                    val selectedTask = SelectedTask(
-                                                        employeePicture,
-                                                        employeeName,
-                                                        employeeSurname,
-                                                        dropID,
-                                                        pickupLocation,
-                                                        dropoff,
-                                                        typeOfGoods,
-                                                        brand,
-                                                        numberPlate,
-                                                        assignedTimestamp,
-                                                        employeeUid,
-                                                        key,
-                                                        name
-                                                    )
-
-                                                    // Add the SelectedTask to the list and notify the adapter
-                                                    selectedTasksList.add(selectedTask)
-                                                    selectedTaskAdapter.notifyDataSetChanged()
-                                                }
-
-                                            }
-
-                                            override fun onCancelled(error: DatabaseError) {
-                                                // Handle errors
-                                            }
-                                        })
-                                    }
-
-                                    override fun onCancelled(error: DatabaseError) {
-                                        // Handle errors
-                                    }
-                                })
+                    if (employeeUid != null && completedTimestamp != null && completedTimestamp == 0L) {
+                        fetchVehicleDetails(vehiclesRef, vehicleId) { brand, numberPlate ->
+                            fetchEmployeeDetails(loginRef, employeeUid) { employeePicture, employeeName, employeeSurname ->
+                                fetchLocationDetails(locationRef, dropoffLocationId) { dropoff, name ->
+                                    val selectedTask = SelectedTask(
+                                        employeePicture,
+                                        employeeName,
+                                        employeeSurname,
+                                        key,
+                                        pickupLocation,
+                                        dropoff,
+                                        typeOfGoods,
+                                        brand,
+                                        numberPlate,
+                                        assignedTimestamp,
+                                        employeeUid,
+                                        key,
+                                        name
+                                    )
+                                    selectedTasksList.add(selectedTask)
+                                    selectedTaskAdapter.notifyDataSetChanged()
+                                }
                             }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                // Handle errors
-                            }
-                        })
+                        }
                     }
                 }
             }
@@ -148,6 +114,63 @@ class OutGoingFragment : Fragment() {
                 // Handle errors
             }
         })
-        return view
+    }
+
+    private fun fetchVehicleDetails(vehiclesRef: DatabaseReference, vehicleKey: String?, callback: (String?, String?) -> Unit) {
+        if (vehicleKey == null) {
+            callback(null, null)
+            return
+        }
+        vehiclesRef.child(vehicleKey).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val brand = snapshot.child("brand").getValue(String::class.java)
+                val numberPlate = snapshot.child("numberPlate").getValue(String::class.java)
+                callback(brand, numberPlate)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(null, null)
+            }
+        })
+    }
+
+    private fun fetchEmployeeDetails(loginRef: DatabaseReference, employeeUid: String, callback: (String?, String?, String?) -> Unit) {
+        loginRef.child("email").child(employeeUid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val employeePicture = snapshot.child("Picture").getValue(String::class.java)
+                val employeeName = snapshot.child("name").getValue(String::class.java)
+                val employeeSurname = snapshot.child("surname").getValue(String::class.java)
+                callback(employeePicture, employeeName, employeeSurname)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(null, null, null)
+            }
+        })
+    }
+
+    private fun fetchLocationDetails(locationRef: DatabaseReference, locationKey: String?, callback: (String?, String?) -> Unit) {
+        if (locationKey == null) {
+            Log.e("OutGoingFragment", "Location key is null")
+            callback(null, null)
+            return
+        }
+        locationRef.child(locationKey).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val address = snapshot.child("address").getValue(String::class.java)
+                val name = snapshot.child("name").getValue(String::class.java)
+
+                if (address == null || name == null) {
+                    Log.e("OutGoingFragment", "Address or Name is null for locationKey: $locationKey")
+                }
+
+                callback(address, name)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("OutGoingFragment", "Error fetching location details: ${error.message}")
+                callback(null, null)
+            }
+        })
     }
 }

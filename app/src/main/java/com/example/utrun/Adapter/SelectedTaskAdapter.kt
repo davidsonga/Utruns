@@ -55,7 +55,7 @@ private val ctx:Context = context
             holder.txt_times.text = "Time selected: ${formattedDate.toString()}"
             holder.employeeName.text = "User name: ${selectedTask.employeeName}"
             holder.employeeSurname.text = "User surname: ${selectedTask.employeeSurname}"
-            holder.taskCode.text = "Organization: ${selectedTask.name}\nTask code ${selectedTask.taskCode}"
+            holder.taskCode.text = "Organization: ${selectedTask.name}\nTask code: ${selectedTask.taskCode}"
             holder.pickLocation.text = "Pickup location: ${selectedTask.pickLocation}"
             holder.dropLocation.text = "Drop location: ${selectedTask.dropLocation}"
             holder.typeOfGoods.text = "Goods: ${selectedTask.typeOfGoods}"
@@ -83,8 +83,6 @@ private val ctx:Context = context
     fun setFilteredList(filteredList: List<SelectedTask>) {
         this.selectedTasksList = filteredList
         notifyDataSetChanged() // Notify the adapter that the data has changed
-
-
     }
 
     class SelectedTaskViewHolder(itemView: View,activity: Activity,selectedTasksList: List<SelectedTask>,context: Context) : RecyclerView.ViewHolder(itemView) {
@@ -103,7 +101,7 @@ private val ctx:Context = context
         init {
             itemView.findViewById<TextView>(R.id.txt_dropLocation).setOnClickListener {
                 progressDialog = ProgressDialog(activity)
-                progressDialog.setMessage("Please wait...") // Set a message to be displayed
+                progressDialog.setMessage("Please wait...")
                 progressDialog.setCancelable(false)
                 progressDialog.show()
                 itemView.findViewById<TextView>(R.id.txt_pickLocation).isEnabled = false

@@ -37,22 +37,15 @@
             android:inputType="textEmailAddress"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/edit_DropOffLocation"
-        style="@style/LoginTextInputOuterFieldStyle"
+    <!-- Drop Off Location Spinner -->
+    <Spinner
+        android:id="@+id/spinner_dropOffLocation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
+        android:layout_marginVertical="10dp"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginBottom="10dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/DropOffLocationEt"
-            style="@style/LoginTextInputInnerFieldStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Drop off location"
-            android:inputType="textEmailAddress"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:paddingStart="15dp"
+        android:background="@drawable/green_btn"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/edit_typeOfGoods"

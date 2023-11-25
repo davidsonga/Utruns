@@ -13,6 +13,6 @@ data class Task(
     var uploadedTimestamp: Long = 0L,
     var vehicleId: String? = null,
     var dropoffLocation: String? = null,
-    var vehicleBrand: String? = null, // Optional field
-    var vehicleNumberPlate: String? = null // Optional field
+    var vehicleBrand: String? = null,
+    var vehicleNumberPlate: String? = null
 )

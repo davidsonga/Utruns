@@ -99,7 +99,9 @@ class Home : Fragment(), OnMapReadyCallback {
     }
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
+        if (::mapView.isInitialized) {
+            mapView.onSaveInstanceState(outState)
+        }
     }
 
     override fun onMapReady(map: GoogleMap) {
