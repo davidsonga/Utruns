@@ -47,8 +47,6 @@ class task_details : AppCompatActivity() {
      val btn_finishOnboarding:Button = findViewById(R.id.btn_finishOnboarding)
      val btn_TakePhoto: Button = findViewById(R.id.btn_TakePhoto)
 
-
-
         val UID = intent.getStringExtra("uid")
         Keys = intent.getStringExtra("Key").toString()
         val sharedPref = this.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
@@ -110,12 +108,7 @@ class task_details : AppCompatActivity() {
                         name=names.toString()
                         txt_TaskCode.text ="Company name: ${name}"
                     }
-
-
-
                 }
-
-
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -124,15 +117,20 @@ class task_details : AppCompatActivity() {
 
         })
 
-        btn_finishOnboarding.setOnClickListener(){
+        btn_finishOnboarding.setOnClickListener {
             imageView1 = findViewById(R.id.imageView1)
-            // Get the drawable from the ImageView
             val drawable = imageView1.drawable
 
-// Convert the drawable to a Bitmap
-            val bitmap: Bitmap = (drawable as BitmapDrawable).bitmap
-            uploadFinshishedTask(UID,pickLocation,task,dropLocation,NumberPlate,vehicle, bitmapToBase64(bitmap))
+            if (drawable == null) {
+                // No image is set, show a Toast message
+                Toast.makeText(this, "Please upload an image to proceed", Toast.LENGTH_LONG).show()
+            } else {
+                // Convert the drawable to a Bitmap and proceed
+                val bitmap: Bitmap = (drawable as BitmapDrawable).bitmap
+                uploadFinshishedTask(UID, pickLocation, task, dropLocation, NumberPlate, vehicle, bitmapToBase64(bitmap))
+            }
         }
+
         btn_TakePhoto.setOnClickListener {
             // Create an intent to capture an image using the device's camera
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -142,10 +140,7 @@ class task_details : AppCompatActivity() {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
             }
         }
-
-
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -171,7 +166,6 @@ class task_details : AppCompatActivity() {
         val byteArray = byteArrayOutputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
-
 
     @SuppressLint("SuspiciousIndentation")
     private fun uploadFinshishedTask(uid: String?, pickLocation: String?, task: String?, dropLocation: String?, NumberPlate:String?, vehicle: String?, bitmapToBase64: String) {
