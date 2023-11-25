@@ -8,23 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.Toast
-import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.utrun.Activity.TaskAddedByTheUser
 import com.example.utrun.Adapter.SelectedTaskAdapter
-import com.example.utrun.Adapter.TaskCardAdapter
 import com.example.utrun.R
 import com.example.utrun.models.SelectedTask
-import com.example.utrun.models.Tasks
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.util.Locale
 
 class OutGoingFragment : Fragment() {
 
