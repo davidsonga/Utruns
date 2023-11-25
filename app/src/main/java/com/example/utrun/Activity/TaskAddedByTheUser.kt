@@ -181,7 +181,6 @@ class TaskAddedByTheUser : AppCompatActivity() {
 
     private fun clearInputFields() {
         pickupLocationEditText.text.clear()
-        dropoffLocationEditText.text.clear()
         typeOfGoodsEditText.text.clear()
         typeEditText.text.clear()
     }
