@@ -36,8 +36,6 @@ import com.google.firebase.database.ValueEventListener
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-
-
 class Profile : Fragment() {
 
     private val PICK_IMAGE_REQUEST = 1
