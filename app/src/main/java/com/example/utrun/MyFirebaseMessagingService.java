@@ -9,10 +9,9 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import com.example.utrun.Activity.ChatAct;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import android.app.NotificationManager;
+
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -34,22 +33,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String body = remoteMessage.getNotification().getBody();
             String clickAction = remoteMessage.getData().get("click_action");
             if (clickAction != null && clickAction.equals("OPEN_CHAT_ACTIVITY")) {
-                Intent intent = new Intent(this, ChatAct.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                //Intent intent = new Intent(this, ChatAct.class);
+               // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+               // @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
                 // Build the notification
-                NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(this, "channel_id")
-                                .setContentTitle(title)
-                                .setContentText(body)
-                                .setSmallIcon(R.drawable.edit_profile)
-                                .setAutoCancel(true)
-                                .setContentIntent(pendingIntent);
+               // NotificationCompat.Builder builder =
+                     //   new NotificationCompat.Builder(this, "channel_id")
+                              //  .setContentTitle(title)
+                              //  .setContentText(body)
+                               // .setSmallIcon(R.drawable.edit_profile)
+                              //  .setAutoCancel(true)
+                                //.setContentIntent(pendingIntent);
 
-                NotificationManager notificationMarnage=null;
+              //  NotificationManager notificationMarnage=null;
                 // Show the notification
-                notificationMarnage.notify(0, builder.build());
+             //   notificationMarnage.notify(0, builder.build());
             }
             // Display the notification
             showNotification(title, body);

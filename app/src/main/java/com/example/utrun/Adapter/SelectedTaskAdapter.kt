@@ -17,13 +17,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.utrun.Activity.ChatAct
 
 import com.example.utrun.Activity.task_details
 import com.example.utrun.MainActivity
 import com.example.utrun.R
 import com.example.utrun.models.SelectedTask
-import com.example.utrun.util.progressDialog
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
 import java.io.IOException
@@ -201,27 +199,6 @@ private val ctx:Context = context
                 }
             }
 
-                itemView.findViewById<CircleImageView>(R.id.employeeImageView).setOnClickListener {
-                    val positions = adapterPosition
-                    if (positions != RecyclerView.NO_POSITION) {
-                        val selectedTasks = selectedTasksList[positions]
-                   if(selectedTasks.UID != FirebaseAuth.getInstance().uid){
-                       val sharedPref: SharedPreferences =
-                           activity.getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
-                       val editor = sharedPref.edit()
-                       editor.putString("key", selectedTasks.employeePicture)
-                       editor.apply()
-                       val intent = Intent(activity, ChatAct::class.java)
-                       intent.putExtra("fullName", "${selectedTasks.employeeName} ${selectedTasks.employeeSurname}")
-                       // intent.putExtra("pictureUrl", user.pictureUrl)
-                       intent.putExtra("id",selectedTasks.UID )
-                       activity.startActivity(intent)
-                   }else{
-                       Toast.makeText(context,"You cannot chat to yourself!!!",Toast.LENGTH_SHORT).show()
-                   }
-
-                }
-            }
 
         }
         fun getAddressLatLng(context: Context, address: String): Pair<Double, Double>? {

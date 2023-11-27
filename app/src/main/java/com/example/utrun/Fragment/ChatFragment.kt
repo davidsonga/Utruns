@@ -1,22 +1,31 @@
 package com.example.utrun.Fragment
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.utrun.Activity.ChatAct
 import com.example.utrun.Adapter.UserAdapter
 import com.example.utrun.databinding.FragmentChatBinding
-import com.example.utrun.models.User
+import com.example.utrun.models.message
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import java.util.concurrent.atomic.AtomicInteger
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import java.util.TreeMap
+
 
 class ChatFragment : Fragment() {
     private var _binding: FragmentChatBinding? = null
@@ -25,103 +34,162 @@ class ChatFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var userAdapter: UserAdapter
     private lateinit var databaseReference: DatabaseReference
-    private val lastText: MutableMap<String, String> = mutableMapOf()
+    private lateinit var chatReference: DatabaseReference
+    private val userList = mutableListOf<message>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
+       userAdapter = UserAdapter(userList, requireContext())
         setupRecyclerView()
         setupChatListener()
+
+        binding.sendMessage.setOnClickListener(){
+            if(binding.messageEd.text.toString() != ""){
+                sendMessage(binding.messageEd.text.toString())
+            }
+        }
+
+        binding.messageEd.addTextChangedListener(object: TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                binding.recycler.scrollToPosition(userAdapter.itemCount - 1)
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.recycler.scrollToPosition(userAdapter.itemCount - 1)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.recycler.scrollToPosition(userAdapter.itemCount - 1)
+            }
+
+        })
+        binding.recycler.scrollToPosition(userAdapter.itemCount - 1)
         return binding.root
     }
 
+    private fun sendMessage(text: String?) {
+   val database = FirebaseDatabase.getInstance().reference.child("login").child("email").child(FirebaseAuth.getInstance().uid.toString())
+
+// Set the time zone to South Africa
+        val tz = TimeZone.getTimeZone("Africa/Johannesburg")
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        sdf.timeZone = tz
+
+// Get the current timestamp in South Africa
+        val timestampString = sdf.format(Date())
+        var timestamp: Long = 0
+
+        try {
+            val date = sdf.parse(timestampString)
+            timestamp = date?.time ?: 0L // Get the timestamp in milliseconds or 0 if null
+        } catch (e: ParseException) {
+            // Handle the error as needed, e.g., log the error or set a default value
+            timestamp = 0L
+        }
+
+       database.addValueEventListener(object :ValueEventListener{
+           override fun onDataChange(snapshot: DataSnapshot) {
+              val picture = snapshot.child("Picture").getValue(String::class.java)?:""
+               val name = snapshot.child("name").getValue(String::class.java)?:""
+               val surname= snapshot.child("surname").getValue(String::class.java)?:""
+               val fullname:String = "$name $surname"
+
+               if(picture.isNotEmpty() &&picture.isNotBlank() ){
+                   val chatMessages =FirebaseDatabase.getInstance().reference.child("chats").child(timestamp.toString()).child(FirebaseAuth.getInstance().uid.toString())
+
+                   val valueMap = hashMapOf(
+                       "message" to text,
+                       "fullname" to fullname)
+
+                   chatMessages.setValue(valueMap)
+                       .addOnSuccessListener {
+                           binding.messageEd.text.clear()
+
+                       }
+
+               }else{
+                   Toast.makeText(requireContext(),"You need a profile picture to send messages!!!",Toast.LENGTH_LONG).show()
+               }
+
+
+
+           }
+
+           override fun onCancelled(error: DatabaseError) {
+
+           }
+
+       })
+
+    }
+
     private fun setupRecyclerView() {
-        recyclerView = binding.recyclerView
+        recyclerView = binding.recycler
         recyclerView.layoutManager = LinearLayoutManager(context)
-        userAdapter = UserAdapter(arrayListOf(), this::openChatWithUser, lastText)
+
+        // Initialize the adapter if it hasn't been initialized yet
+        if (!::userAdapter.isInitialized) {
+            userAdapter = UserAdapter(userList, requireContext())
+        }
+
         recyclerView.adapter = userAdapter
     }
 
     private fun setupChatListener() {
-        databaseReference = FirebaseDatabase.getInstance().getReference("login/email")
+        databaseReference = FirebaseDatabase.getInstance().reference.child("login").child("email")
+        chatReference = FirebaseDatabase.getInstance().reference.child("chats")
 
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userList = mutableListOf<User>()
-                for (childSnapshot in dataSnapshot.children) {
-                    val base64Image = childSnapshot.child("Picture").value as String?
-                    val name = childSnapshot.child("name").getValue(String::class.java)
-                    val surname = childSnapshot.child("surname").getValue(String::class.java)
-                    val fullName = "$name $surname"
-                    val uid = childSnapshot.key
+        chatReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val sortedMessages = TreeMap<Long, message>()
 
+                snapshot.children.forEach { chatSnapshot ->
+                    val timespan = chatSnapshot.key?.toLongOrNull() ?: return@forEach
+                    chatSnapshot.children.forEach { childChatSnapshot ->
+                        val uid = childChatSnapshot.key ?: return@forEach
+                        val chat = childChatSnapshot.child("message").getValue(String::class.java) ?: return@forEach
 
-                    val currentuid = childSnapshot.key.toString()
+                        databaseReference.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(userSnapshot: DataSnapshot) {
+                                val picture = userSnapshot.child("Picture").getValue(String::class.java) ?: ""
+                                val name = userSnapshot.child("name").getValue(String::class.java) ?: ""
+                                val surname = userSnapshot.child("surname").getValue(String::class.java) ?: ""
+                                val fullname = "$name $surname"
 
-                    if (!base64Image.isNullOrEmpty() && uid != FirebaseAuth.getInstance().uid) {
-                        userList.add(User(fullName, base64Image, uid ?: ""))
+                                val objChat = message(uid, timespan.toString(), chat, picture, fullname)
+                                if (picture.isNotEmpty() && chat.isNotEmpty() && fullname.isNotEmpty()) {
+                                    sortedMessages[timespan] = objChat
+                                    val sortedList = sortedMessages.values.toList()
+                                    userAdapter.setData(sortedList)
+                                    binding.recycler.scrollToPosition(userAdapter.itemCount - 1)
+                                }
+                            }
+
+                            override fun onCancelled(userError: DatabaseError) {
+                                // Handle error
+                            }
+                        })
                     }
-                }
-                fetchLastMessagesForUsers(userList) {
-                    userAdapter.setData(userList)
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Handle error here if needed
+                // Handle error
             }
         })
-
-    }
-    private fun fetchLastMessagesForUsers(userList: MutableList<User>, completion: () -> Unit) {
-        val pendingFetchCount = AtomicInteger(userList.size)
-
-        userList.forEach { user ->
-            val chatReference = FirebaseDatabase.getInstance().getReference("chats")
-                .child(FirebaseAuth.getInstance().currentUser?.uid + user.uid)
-
-            chatReference.orderByChild("timestamp").limitToLast(1)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(messageSnapshot: DataSnapshot) {
-                        val lastMessage = if (messageSnapshot.exists()) {
-                            messageSnapshot.children.firstOrNull()?.child("message")?.getValue(String::class.java) ?: "No messages"
-                        } else {
-                            "No messages"
-                        }
-                        val timestamp = messageSnapshot.children.firstOrNull()?.child("timestamp")?.getValue(Double::class.java) ?: 0.0
-
-                        lastText[user.uid] = lastMessage
-                        user.lastMessageTimestamp = timestamp // Update the timestamp here
-
-                        if (pendingFetchCount.decrementAndGet() == 0) {
-                            userList.sortByDescending { it.lastMessageTimestamp } // Sort the userList
-                            userAdapter.setData(userList) // Update the adapter
-                            completion.invoke()
-                        }
-                    }
-
-                    override fun onCancelled(databaseError: DatabaseError) {
-                        // Handle the error here if needed
-                    }
-                })
-        }
     }
 
 
-    private fun openChatWithUser(user: User) {
-        val sharedPref: SharedPreferences = requireActivity().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putString("key", user.pictureUrl)
-        editor.apply()
 
-        val intent = Intent(context, ChatAct::class.java).apply {
-            putExtra("fullName", user.fullName)
-            putExtra("id", user.uid)
-        }
-        startActivity(intent)
-    }
+
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -42,9 +42,6 @@
             android:name=".Activity.SelectCar"
             android:exported="false" />
         <activity
-            android:name=".Activity.ChatAct"
-            android:label="ChatAct" />
-        <activity
             android:name=".HomePage"
             android:exported="false" />
         <activity
