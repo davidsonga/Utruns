@@ -1,6 +1,7 @@
 package com.example.utrun.util
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -15,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 
 class cuurentLoaction {
 
+    @SuppressLint("SuspiciousIndentation")
     fun setUserCurrentLocation(context:Context):Int {
         val fusedLocationClient: FusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(context) // Replace 'context' with the appropriate context
@@ -34,42 +36,18 @@ class cuurentLoaction {
                     val myLatitude = location.latitude
                     val myLongitude = location.longitude
 
-                    FirebaseDatabase.getInstance().reference.child("login").child("email")
-                        .addValueEventListener(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                for (loginSnapshot in snapshot.children) {
-                                    val UID = loginSnapshot.key
-                                    val picture =
-                                        loginSnapshot.child("Picture").getValue(String::class.java)
-                                    val name =
-                                        loginSnapshot.child("name").getValue(String::class.java)
-                                    val surname =
-                                        loginSnapshot.child("surname").getValue(String::class.java)
-                                    val fullName = "$name $surname"
-                                    if (UID == FirebaseAuth.getInstance().uid) {
-                                        val setLocation =
-                                            FirebaseDatabase.getInstance().reference.child("currentLocation")
-                                                .child(FirebaseAuth.getInstance().uid.toString())
-                                        val nameSurnameMap = hashMapOf(
-                                            "fullName" to fullName,
-                                            "Picture" to picture,
-                                            "latitude" to myLatitude,
-                                            "longitude" to myLongitude)
-                                        //setLocation.child("latitude").setValue(myLatitude)
-                                        //setLocation.child("longitude").setValue(myLongitude)
-                                        setLocation.setValue(nameSurnameMap)
+                   val location= FirebaseDatabase.getInstance().reference.child("login").child("email").child(FirebaseAuth.getInstance().uid.toString())
 
 
-                                     //   setLocation.child("Picture").setValue(picture)
-                                     //   setLocation.child("fullName").setValue(fullName)
-                                    }
-                                }
-                            }
 
-                            override fun onCancelled(error: DatabaseError) {
-                                // Handle onCancelled event
-                            }
-                        })
+                                        location.child("latitude").setValue(myLatitude)
+                                        location.child("longitude").setValue(myLongitude)
+
+                                             .addOnSuccessListener {
+                                                 num=1
+                                             }
+
+
                 }
             }
  return num

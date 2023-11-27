@@ -104,6 +104,7 @@ class Home : Fragment(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap!!.uiSettings.isZoomControlsEnabled=true
@@ -123,7 +124,7 @@ class Home : Fragment(), OnMapReadyCallback {
             if (isAdded && context != null) {
 
 
-            val getLocation = FirebaseDatabase.getInstance().reference.child("currentLocation")
+            val getLocation = FirebaseDatabase.getInstance().reference.child("login").child("email")
 
             var num:Int =0
 
@@ -137,21 +138,28 @@ class Home : Fragment(), OnMapReadyCallback {
 
                         for(locationSnapshop in snapshot.children){
                             val uid = locationSnapshop.key.toString()
-                            val lat = locationSnapshop.child("latitude").getValue(Double::class.java)
-                            val long = locationSnapshop.child("longitude").getValue(Double::class.java)
-                            var picture= locationSnapshop.child("Picture").getValue(String::class.java)?:""
-                            val fullName= locationSnapshop.child("fullName").getValue(String::class.java)
+                            val lat = locationSnapshop.child("latitude").getValue(Double::class.java)?:0.0
+                            val long = locationSnapshop.child("longitude").getValue(Double::class.java)?:0.0
+                            val picture= locationSnapshop.child("Picture").getValue(String::class.java)?:""
+                            val Name= locationSnapshop.child("name").getValue(String::class.java)?:""
+                            val surname= locationSnapshop.child("surname").getValue(String::class.java)?:""
+                            val fullName= "$Name $surname"
 
 
-                            val add = Locations(lat,long,fullName,picture,uid)
-                            num++
-                            array.add(add)
+                            if(picture !=""){
+                                if(lat !=0.0 && long !=0.0  ){
+
+                                    val add = Locations(lat,long,fullName,picture,uid)
+                                    num++
+                                    array.add(add)
+                                }
+                            }
+
+
+
 
                         }
-                        // Retrieve the location and organization information from the intent
-                        //val latitude = requireActivity().intent.getDoubleExtra("lat", 0.0)
-                        //   val longitude = requireActivity().intent.getDoubleExtra("long", 0.0)
-                        // val companyName = requireActivity().intent.getStringExtra("organization")
+
                         val sharedPref: SharedPreferences =requireContext().getSharedPreferences("MySharedPref", Context.MODE_PRIVATE)
 
                         val companyName = sharedPref.getString("organization", null)
@@ -247,7 +255,7 @@ class Home : Fragment(), OnMapReadyCallback {
 
         try {
 
-            if (lat != 0.0 && lon != 0.0 && fullname.isNotEmpty() && !fullname.equals("") && uid.isNotEmpty()) {
+
 
                 val markerOptions:MarkerOptions
                 val userLocation:LatLng
@@ -280,7 +288,7 @@ class Home : Fragment(), OnMapReadyCallback {
                     googleMap?.addMarker(markerOptions)
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f))
 
-                }
+
             }
 
         } catch (e: SecurityException) {

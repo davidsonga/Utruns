@@ -4,6 +4,7 @@ package com.example.utrun.Network
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.example.utrun.Activity.SelectCar
@@ -27,7 +28,7 @@ class LoginProgress {
     private var objProgress:progressDialog= progressDialog()
     private lateinit var appLifecycleCallback: AppLifecycleCallback
 
-   fun isLoginUser(acitivity: Activity, email: String, password: String, role: String,refreshedToken:String):Boolean{
+   fun isLoginUser(acitivity: Activity, email: String, password: String, role: String, refreshedToken:String):Boolean{
 
         val auth = FirebaseAuth.getInstance()
        objProgress.isProgressDialogEnable(acitivity,"Please wait...")
@@ -77,6 +78,8 @@ class LoginProgress {
                             objProgress.isProgressDialogDisable()
                             isProfilePicture = false
                             Toast.makeText(activity, "Login success, please provide a profile picture", Toast.LENGTH_LONG).show()
+                            val current:cuurentLoaction = cuurentLoaction()
+                            current.setUserCurrentLocation(activity)
                             objintent.intent(activity, activity2)
                         } else {
                             // Picture field is not empty
